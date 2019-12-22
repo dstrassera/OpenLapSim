@@ -1,13 +1,13 @@
 """
 ---------------------------
-Performance Envelope Calculation - OLS
+Acceleration Envelope Calculator - OLS
 ---------------------------
 """
 # Import Packages
 import numpy as np
 import scipy.constants as sc
 
-class PerfEnvCalc:
+class AccEnvCalc:
         
     def __init__(self,setupDict):
         #input
@@ -29,7 +29,7 @@ class PerfEnvCalc:
         #parameters
         self.nSteps = 20
         #output
-        self.perfEnvDict = {
+        self.accEnvDict = {
             "vxvect"    : None, 
             "axacc"     : None,
             "axdec"     : None,
@@ -93,13 +93,13 @@ class PerfEnvCalc:
             axacc[i] = max(0,(min(Fxdrive[i],Fxgrip[i])-Fxaero_[i])/self.mcar)
             axdec[i] = -(min(Fxbrk,Fxgrip[i])+Fxaero_[i])/self.mcar 
             
-        self.perfEnvDict = {
+        self.accEnvDict = {
             "vxvect"    : vxvect, 
             "axacc"     : axacc,
             "axdec"     : axdec,
             "ay"        : ay, 
         }
         
-        print("PerfEnvCalc completed")
+        print("AccEnvCalc completed")
 
 

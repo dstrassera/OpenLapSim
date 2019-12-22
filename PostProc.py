@@ -9,28 +9,28 @@ import numpy as np
 
 class PostProc:
     
-    def __init__(self, perfEnvDict, lapSimDict):
+    def __init__(self, accEnvDict, lapSimTimeDict):
         self.size   = 10
         # input
-        self.vxvect  = perfEnvDict["vxvect"]
-        self.ay      = perfEnvDict["ay"]
-        self.axacc   = perfEnvDict["axacc"]
-        self.axdec   = perfEnvDict["axdec"]
-        self.dist    = lapSimDict["dist"]
-        self.vcar    = lapSimDict["vcar"]
-        self.laptime = lapSimDict["laptime"]
-        self.vcarmax = lapSimDict["vcarmax"]
-        self.vxacc   = lapSimDict["vxacc"]
-        self.vxdec   = lapSimDict["vxdec"]
-        self.vxcor   = lapSimDict["vxcor"]
+        self.vxvect  = accEnvDict["vxvect"]
+        self.ay      = accEnvDict["ay"]
+        self.axacc   = accEnvDict["axacc"]
+        self.axdec   = accEnvDict["axdec"]
+        self.dist    = lapSimTimeDict["dist"]
+        self.vcar    = lapSimTimeDict["vcar"]
+        self.laptime = lapSimTimeDict["laptime"]
+        self.vcarmax = lapSimTimeDict["vcarmax"]
+        self.vxacc   = lapSimTimeDict["vxacc"]
+        self.vxdec   = lapSimTimeDict["vxdec"]
+        self.vxcor   = lapSimTimeDict["vxcor"]
         # output
         self.f1 = None
         self.f2 = None
         self.f3 = None
         
-    def plotPerfEnv(self):
+    def plotAccEnv(self):
         f = plt.figure(1,figsize=(self.size/2,self.size/2))
-        plt.title("Performance Envelope")
+        plt.title("Acceleration Envelope")
         plt.plot(self.ay,self.vxvect,'c-',label="ay")
         plt.plot(self.axacc,self.vxvect,'m-',label = "ax acc")
         plt.plot(self.axdec,self.vxvect,'r-',label = "ax dec")
@@ -42,7 +42,7 @@ class PostProc:
         #plt.xlim(-60,60)
         self.f1 = f
 
-    def plotLapSim(self):
+    def plotLapTimeSim(self):
         f = plt.figure(2,figsize=(self.size,self.size/2))
         plt.title("Lap Time Simulation")
         plt.plot(self.dist,self.vcar,'b-',linewidth=2,label = "vcar")
@@ -54,7 +54,7 @@ class PostProc:
         plt.xlim(0,max(self.dist))
         self.f2 = f
         
-    def plotLapSimExtra(self):
+    def plotLapTimeSimExtra(self):
         f = plt.figure(3,(self.size,self.size/2))
         plt.title("Lap Time Simulation - Extra")
         plt.plot(self.dist,self.vxcor,'c-',label = "vxcor")

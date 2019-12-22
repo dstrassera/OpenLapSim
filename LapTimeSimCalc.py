@@ -1,24 +1,24 @@
 """
 ---------------------------
-Lap Time Simulation (vcar) - OLS
+Lap Time Simulation Calculator - OLS
 ---------------------------
 """
 # Import Packages
 import numpy as np
 import math as mt
 
-class LapSimCalc:
+class LapTimeSimCalc:
     
-        def __init__(self,TrackFile,perfEnvDict,vxaccStart):
+        def __init__(self,TrackFile,accEnvDict,vxaccStart):
             #inputs
             self.TrackFile  = TrackFile
-            self.vxvect     = perfEnvDict["vxvect"]
-            self.axacc      = perfEnvDict["axacc"]
-            self.axdec      = perfEnvDict["axdec"]
-            self.ay         = perfEnvDict["ay"]
+            self.vxvect     = accEnvDict["vxvect"]
+            self.axacc      = accEnvDict["axacc"]
+            self.axdec      = accEnvDict["axdec"]
+            self.ay         = accEnvDict["ay"]
             self.vxaccStart = vxaccStart
             #outputs
-            self.lapSimDict = {
+            self.lapTimeSimDict = {
                 "vcar"       : None,
                 "dist"       : None,
                 "time"       : None,
@@ -91,7 +91,7 @@ class LapSimCalc:
             laptime = np.round(max(time),3)
             vcarmax = np.round(max(vcar),3)
             
-            self.lapSimDict = {
+            self.lapTimeSimDict = {
                 "vcar"      : vcar,
                 "dist"      : dist,
                 "time"      : time,
@@ -103,4 +103,4 @@ class LapSimCalc:
                 "vxcor"     : vxcor,
             }
             
-            print("LapSimCalc completed")
+            print("LapSimTimeCalc completed")

@@ -7,12 +7,12 @@ with aero forces, constant tyre grip(x and y), engine torque map and gears.
 
 Steps:
     1 - Select Files: TrackFile.txt and SetupFile.py
-    2 - Calculates the Performance Envelope
-    3 - Calculates the Lap Simulation(vcar)
+    2 - Calculate the Acceleration Envelope
+    3 - Calculate the Lap Time Simulation (vcar)
     4 - Plot Results
 ---------------------------
 @autor: Davide Strassera
-@vesrion: 2019-12-21
+@first release: 2019-12-21
 by Python 3.7
 ---------------------------
 """
@@ -34,30 +34,30 @@ from SetupFile import*
 Run Simulation
 ---------------------------
 """
-#load SetupFile
+#SetupFile obj instantiation
 s = SetupFile()
 
-# Run Performance Envelope
-from PerfEnvCalc import*
-pE = PerfEnvCalc(s.setupDict)
-pE.Run()
+# Run Acceleration Envelope
+from AccEnvCalc import*
+aE = AccEnvCalc(s.setupDict)
+aE.Run()
 
 # Run Lap time Simulation
-from LapSimCalc import*
-l1 = LapSimCalc(TrackFile,pE.perfEnvDict,10)
+from LapTimeSimCalc import*
+l1 = LapTimeSimCalc(TrackFile,aE.accEnvDict,10)
 l1.Run()
-l2 = LapSimCalc(TrackFile,pE.perfEnvDict,l1.lapSimDict["vxaccEnd"])
+l2 = LapTimeSimCalc(TrackFile,aE.accEnvDict,l1.lapTimeSimDict["vxaccEnd"])
 l2.Run()
 
 # Post Processing
 from PostProc import*
-pP = PostProc(pE.perfEnvDict, l2.lapSimDict)
-pP.plotPerfEnv()
+pP = PostProc(aE.accEnvDict, l2.lapTimeSimDict)
+pP.plotAccEnv()
 pP.f1.show()
-pP.plotLapSim()
+pP.plotLapTimeSim()
 pP.f2.show()
-pP.plotLapSimExtra()
-pP.f3.show()
+#pP.plotLapTimeSimExtra()
+#pP.f3.show()
 pP.printData()
 
 #-----------------------------------------------------------------------------
