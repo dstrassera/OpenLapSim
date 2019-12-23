@@ -50,7 +50,7 @@ l2 = LapTimeSimCalc(TrackFile,aE.accEnvDict,l1.lapTimeSimDict["vxaccEnd"])
 l2.Run()
 
 # Post Processing
-from PostProc import*
+from PostProc import*   
 pP = PostProc(aE.accEnvDict, l2.lapTimeSimDict)
 pP.plotAccEnv()
 pP.f1.show()
@@ -59,6 +59,12 @@ pP.f2.show()
 #pP.plotLapTimeSimExtra()
 #pP.f3.show()
 pP.printData()
+
+# To export(variable explorer) vcar and dist --> bExport = 1
+bExport = 0
+if bExport == 1:
+    vcar = l2.lapTimeSimDict["vcar"] #car speed [m/s]
+    dist = l2.lapTimeSimDict["dist"] #circuit dist [m]
 
 #-----------------------------------------------------------------------------
 
