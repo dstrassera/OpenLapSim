@@ -17,58 +17,93 @@ by Python 3.7
 ---------------------------
 """
 #-----------------------------------------------------------------------------
-"""
----------------------------
-Select Files
----------------------------
-"""
-# TrackFile.txt
-TrackFile = 'TrackFile.txt'
+#TrackFile.txt
+trackFileName = "TrackFile.txt"
 
 # SetupFile.py
-from SetupFile import*
+from setupFiles.SetupFile import*
+
+bExport = 1
+bPlotExtra = 0
 
 #-----------------------------------------------------------------------------
-"""
----------------------------
-Run Simulation
----------------------------
-"""
-#SetupFile obj instantiation
-s = SetupFile()
 
-# Run Acceleration Envelope
+# import packages generic
+import datetime
+
+# import packages (OLP)
 from AccEnvCalc import*
-aE = AccEnvCalc(s.setupDict)
-aE.Run()
-
-# Run Lap time Simulation
 from LapTimeSimCalc import*
-l1 = LapTimeSimCalc(TrackFile,aE.accEnvDict,10)
-l1.Run()
-l2 = LapTimeSimCalc(TrackFile,aE.accEnvDict,l1.lapTimeSimDict["vxaccEnd"])
-l2.Run()
+from PostProc import*
 
-# Post Processing
-from PostProc import*   
-pP = PostProc(aE.accEnvDict, l2.lapTimeSimDict)
-pP.plotAccEnv()
-pP.f1.show()
-pP.plotLapTimeSim()
-pP.f2.show()
-#pP.plotLapTimeSimExtra()
-#pP.f3.show()
-pP.printData()
-
-# To export(variable explorer) vcar and dist --> bExport = 1
-bExport = 0
-if bExport == 1:
-    vcar = l2.lapTimeSimDict["vcar"] #car speed [m/s]
-    dist = l2.lapTimeSimDict["dist"] #circuit dist [m]
+class RunOpenLapSim:
+    
+        def __init__(self,trackFileName,bExport,bPlotExtra): #SetupFile for now manual change
+            # inputs
+            self.trackFileName = trackFileName
+            self.bExport = bExport
+            self.bPlotExtra = bPlotExtra
+            self.trackFilesPath = "trackFiles/"
+            self.exportFilesPath = "exportFiles/"
+            self.setupFilesPath = "setupFiles/"
+        
+        @staticmethod
+        def createExportSimFile(vcar, dist,exportFilesPath):        
+            time = datetime.datetime.now()
+            timestrf = time.strftime("%b-%d-%Y")
+            NewExportFileName = (exportFilesPath+"SimExport_" + str(timestrf) + ".txt")
+            newFile = open(NewExportFileName, "w")
+            
+            for i in range(len(dist)):  
+                lineToWrite = (str(dist[i]) + "\t" + str(vcar[i]) + "\n")
+                newFile.write(lineToWrite)
+            newFile.close()
+            return NewExportFileName;
+        
+        def run(self):                       
+            """
+            ---------------------------
+            Run Simulation
+            ---------------------------
+            """
+            #SetupFile obj instantiation
+            s = SetupFile()
+            
+            # Run Acceleration Envelope
+            aE = AccEnvCalc(s.setupDict)
+            aE.Run()
+            
+            # Run Lap time Simulation
+            trackFile = (self.trackFilesPath+self.trackFileName)
+            l1 = LapTimeSimCalc(trackFile,aE.accEnvDict,10)
+            l1.Run()
+            l2 = LapTimeSimCalc(trackFile,aE.accEnvDict,l1.lapTimeSimDict["vxaccEnd"])
+            l2.Run()
+            
+            # Post Processing
+            pP = PostProc(aE.accEnvDict, l2.lapTimeSimDict)
+            pP.plotAccEnv()
+            pP.f1.show()
+            pP.plotLapTimeSim()
+            pP.f2.show()
+            if self.bPlotExtra==1 :
+                pP.plotLapTimeSimExtra()
+                pP.f3.show()
+            pP.printData()
+            
+            # set output channels from simulation
+            vcar = l2.lapTimeSimDict["vcar"] #car speed [m/s]
+            dist = l2.lapTimeSimDict["dist"] #circuit dist [m]
+            
+            # export
+            if self.bExport==1:
+                RunOpenLapSim.createExportSimFile(vcar, dist,self.exportFilesPath)
 
 #-----------------------------------------------------------------------------
 
-
+#object instantiation
+runOpenLapSim = RunOpenLapSim(trackFileName,bExport,bPlotExtra)
+runOpenLapSim.run()
 
 
 
