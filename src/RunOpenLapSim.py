@@ -15,17 +15,22 @@ Steps:
 @first release: 2019-12-21
 by Python 3.7
 ---------------------------
+
 """
 #-----------------------------------------------------------------------------
-#TrackFile.txt
-trackFileName = "TrackFile.txt"
+"""
+---------------------------
+Select Files
+---------------------------
+"""
+# SetupFile.json
+setupFileName = "SetupFile.json"
 
-# SetupFile.py
-from setupFiles.SetupFile import*
+# TrackFile.txt
+trackFileName = "TrackFile.txt"
 
 bExport = 1
 bPlotExtra = 0
-
 #-----------------------------------------------------------------------------
 
 # import packages generic
@@ -35,11 +40,13 @@ import datetime
 from AccEnvCalc import*
 from LapTimeSimCalc import*
 from PostProc import*
+from SetupFileLoader import*
 
 class RunOpenLapSim:
     
-        def __init__(self,trackFileName,bExport,bPlotExtra): #SetupFile for now manual change
+        def __init__(self, setupFileName, trackFileName, bExport, bPlotExtra): 
             # inputs
+            self.setupFileName = setupFileName
             self.trackFileName = trackFileName
             self.bExport = bExport
             self.bPlotExtra = bPlotExtra
@@ -67,7 +74,8 @@ class RunOpenLapSim:
             ---------------------------
             """
             #SetupFile obj instantiation
-            s = SetupFile()
+            s = SetupFileLoader(self.setupFilesPath + self.setupFileName)
+            s.loadJSON()
             
             # Run Acceleration Envelope
             aE = AccEnvCalc(s.setupDict)
@@ -102,7 +110,7 @@ class RunOpenLapSim:
 #-----------------------------------------------------------------------------
 
 #object instantiation
-runOpenLapSim = RunOpenLapSim(trackFileName,bExport,bPlotExtra)
+runOpenLapSim = RunOpenLapSim(setupFileName,trackFileName,bExport,bPlotExtra)
 runOpenLapSim.run()
 
 

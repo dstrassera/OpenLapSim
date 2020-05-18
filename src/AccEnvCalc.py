@@ -21,7 +21,8 @@ class AccEnvCalc:
         self.rtyre   = setupDict["rtyre"]
         self.rGearRat = setupDict["rGearRat"]
         self.reff    = setupDict["reff"]
-        self.EngMap  = setupDict["EngMap"]
+        self.EngNm  = setupDict["EngNm"]
+        self.EngRpm  = setupDict["EngRpm"] 
         self.rho     = setupDict["rho"]
         # constants
         self.g       = sc.g     # 9.80665
@@ -39,16 +40,16 @@ class AccEnvCalc:
     #VxMax Calculation (forces equilibrium)
     def Run(self): 
         # Functions Definitions
-        def Mfinaldrive(vx,EngMap,rGear):
+        def Mfinaldrive(vx,EngNm,EngRpm,rGear):
             neng = np.zeros(len(self.rGearRat))
             meng = np.zeros(len(self.rGearRat))
             Mfinaldrive = np.zeros(len(self.rGearRat))
             for i in range(len(self.rGearRat)):
                 ntyre = vx/(2*self.pi*self.rtyre)*60
                 neng[i] = ntyre*self.rGearRat[i]
-                meng[i] = np.interp(neng[i],EngMap[1,:],EngMap[0,:])
+                meng[i] = np.interp(neng[i],self.EngRpm,self.EngNm)
                 #check nengine is in range of rmp max (revlimit) and min (stall)
-                if min(EngMap[1,:])<neng[i]<max(EngMap[1,:]):
+                if min(EngRpm)<neng[i]<max(EngRpm):
                     meng[i] = meng[i]
                 else:
                     meng[i] = 0
@@ -67,7 +68,7 @@ class AccEnvCalc:
         vxmax = 1
         e = 0.1
         while e>0.05:
-            e =((Mfinaldrive(vxmax,self.EngMap,self.rGearRat)/self.rtyre)-Fxaero(vxmax))/self.mcar
+            e =((Mfinaldrive(vxmax,self.EngNm,self.EngRpm,self.rGearRat)/self.rtyre)-Fxaero(vxmax))/self.mcar
             vxmax += 0.1
         
         # Ax & Ay Calculation
@@ -89,7 +90,7 @@ class AccEnvCalc:
         for i in range(len(vxvect)):
             Fxgrip[i]=(Fzaero(vxvect[i])+self.mcar*self.g)*self.gripx #grip limit Fx
             Fxaero_[i] = Fxaero(vxvect[i])
-            Fxdrive[i] = Mfinaldrive(vxvect[i],self.EngMap,self.rGearRat)*self.reff/self.rtyre
+            Fxdrive[i] = Mfinaldrive(vxvect[i],self.EngNm,self.EngRpm,self.rGearRat)*self.reff/self.rtyre
             axacc[i] = max(0,(min(Fxdrive[i],Fxgrip[i])-Fxaero_[i])/self.mcar)
             axdec[i] = -(min(Fxbrk,Fxgrip[i])+Fxaero_[i])/self.mcar 
             

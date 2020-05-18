@@ -3,5 +3,9 @@ src/__pycache__/AccEnvCalc.cpython-37.pyc
 src/__pycache__/LapTimeSimCalc.cpython-37.pyc
 src/__pycache__/PostProc.cpython-37.pyc
 src/setupFiles/__pycache__/SetupFile.cpython-37.pyc
-src/setupFiles/SetupFile_f312.py
-src/setupFiles/SetupFile_Proto.py
+src/setupFiles/SetupFile_f312.json
+src/setupFiles/SetupFile_Proto.json
+src/docs/OpenLapSim_Doc.odt
+/.gitignore
+src/__pycache__/SetupFile.cpython-37.pyc
+src/__pycache__/SetupFileLoader.cpython-37.pyc

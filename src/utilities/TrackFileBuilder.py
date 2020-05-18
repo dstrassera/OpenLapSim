@@ -2,7 +2,7 @@
 ---------------------------
 TrackFileBuilder - OLS
 ---------------------------
-This utility greates a TrackFile.txt for OpenLapSim from real Temeretry data.
+This utility creates a TrackFile.txt for OpenLapSim from real Temeretry data.
 
 Steps:
     1 - Specify the telemetry "telemetryFile.csv"
@@ -12,8 +12,8 @@ Steps:
     2 - Run the routine.
     
 Options:
-    4 - Udjust the filter Cutoff frequency, which is applied to smooth noize 
-        from Glat and Speed telemetry data if nedessary (Wn).
+    4 - Adjust the filter Cutoff frequency, which is applied to smooth noize 
+        from Glat and Speed telemetry data if necessary (Wn).
 
 ---------------------------
 @autor: Davide Strassera
@@ -25,7 +25,7 @@ by Python 3.7
 #TelemetryFile.csv
 telemetryFileName = "telemetryFile.csv"
 
-firstLine = 1
+firstLine = 2
 rowDist = 1
 rowSpeed = 2
 rowGlat = 8
@@ -83,8 +83,11 @@ class TrackFileBuilder:
         
         if bplot == 1 :
             plt.figure(1)
-            plt.plot(telemData,'r-')
-            plt.plot(telemDataFilt,'b-')
+            plt.title("Data Filtering")
+            plt.plot(telemData,'r-',label = "row data")
+            plt.plot(telemDataFilt,'b-',label = "filtered data")
+            plt.legend()
+            plt.grid(b=True,which='major',linestyle=':')
             plt.show
 
         return telemDataFilt;
@@ -92,16 +95,16 @@ class TrackFileBuilder:
     @staticmethod
     def calculateCurvature(telemDist, telemSpeed, telemGlatFilt):
         # units conversion
-        kphToms = 1/3.6
-        gToms2 = 9.81
-        
+        speedToms = 1/3.6 #kph to ms
+        glatToms2 = 9.81 # g to ms2
+
         curvature=[]
         radius=[]
         
         for i in range(len(telemDist)):
             # ay = (v^2)/R --> R = (v^2)/ay
             try:
-                radius.append(mt.pow((telemSpeed[i]*kphToms),2)/(telemGlatFilt[i]*gToms2))
+                radius.append(mt.pow((telemSpeed[i]*speedToms),2)/(telemGlatFilt[i]*glatToms2))
             except ZeroDivisionError:
                 radius.append(1000)# if it is straight line 
             curvature.append(1/radius[i])
@@ -134,8 +137,12 @@ class TrackFileBuilder:
         
         from matplotlib import pyplot as plt
         plt.figure(3)
+        plt.title("Calculated Curvature")
         plt.plot(dist1,curv1,'r-', label = TrackFile1)
         plt.plot(dist2,curv2,'b-', label = TrackFile2)
+        plt.xlabel('distance [m]')
+        plt.ylabel('curvature [1/m]')
+        plt.grid(b=True,which='major',linestyle=':')
         plt.show
     
     def run(self):
