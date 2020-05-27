@@ -87,7 +87,7 @@ class LapTimeSimCalc:
                 time[i] = sum(timestep)
             
             vcar[(len(vcar)-1)] = vcar[(len(vcar)-2)] 
-                
+            
             laptime = np.round(max(time),3)
             vcarmax = np.round(max(vcar),3)
             

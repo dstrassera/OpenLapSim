@@ -23,24 +23,56 @@ class PostProc:
         self.vxacc   = lapSimTimeDict["vxacc"]
         self.vxdec   = lapSimTimeDict["vxdec"]
         self.vxcor   = lapSimTimeDict["vxcor"]
+        #extra channels (AccEnv)
+        self.nGear    = accEnvDict["nGear"]
+        self.EngNm    = accEnvDict["EngNm"]
+        self.EngRpm   = accEnvDict["EngRpm"]
+        self.Fzaero   = accEnvDict["Fzaero"]
+        self.Fxaero   = accEnvDict["Fxaero"]
+        self.FxGrip   = accEnvDict["FxGrip"]
         # output
         self.f1 = None
         self.f2 = None
         self.f3 = None
+        self.f4 = None
         
     def plotAccEnv(self):
         f = plt.figure(1,figsize=(self.size/2,self.size/2))
         plt.title("Acceleration Envelope")
         plt.plot(self.ay,self.vxvect,'c-',label="ay")
-        plt.plot(self.axacc,self.vxvect,'m-',label = "ax acc")
-        plt.plot(self.axdec,self.vxvect,'r-',label = "ax dec")
+        plt.plot(self.axacc,self.vxvect,'m-',label = "axacc")
+        plt.plot(self.axdec,self.vxvect,'r-',label = "axdec")
         plt.legend()
         plt.xlabel('acceleration [m/s^2]')
         plt.ylabel('velocity [m/s]')
         plt.grid(b=True,which='major',linestyle=':')
         plt.ylim(0,self.vcarmax*1.2)
-        #plt.xlim(-60,60)
         self.f1 = f
+        
+    def plotAccEnvExtra(self):
+        f, (ax1, ax2, ax3, ax4) = plt.subplots(1,4,figsize=(self.size*1.5,self.size/2))
+        ax1.set_title("Forces[N] (vcar[m/s])")
+        ax1.plot(self.Fzaero,self.vxvect,'c-',label="Fzaero")
+        ax1.plot(self.Fxaero,self.vxvect,'m-',label = "Fxaero")
+        ax1.plot(self.FxGrip,self.vxvect,'r-',label = "FxGrip")
+        ax1.legend()
+        ax1.grid(b=True,which='major',linestyle=':')
+        
+        ax2.set_title("Gear (vcar[m/s])")
+        ax2.plot(self.nGear,self.vxvect,'c-',label="nGear")
+        ax2.legend()
+        ax2.grid(b=True,which='major',linestyle=':')
+
+        ax3.set_title("EngNm (vcar[m/s])")
+        ax3.plot(self.EngNm,self.vxvect,'c-',label="EngNm")
+        ax3.legend()
+        ax3.grid(b=True,which='major',linestyle=':')
+
+        ax4.set_title("EngRpm (vcar[m/s])")
+        ax4.plot(self.EngRpm,self.vxvect,'c-',label="EngRpm")
+        ax4.legend()
+        ax4.grid(b=True,which='major',linestyle=':')
+        self.f4 = f
 
     def plotLapTimeSim(self):
         f = plt.figure(2,figsize=(self.size,self.size/2))

@@ -10,6 +10,7 @@ Steps:
             - Dist[m], Speed[km/h], Glat[g]
             - if different units change the convertions param
     2 - Run the routine.
+    3 - The TrackFile.txt generated is saved in \src\trackFile
     
 Options:
     4 - Adjust the filter Cutoff frequency, which is applied to smooth noize 
@@ -23,8 +24,7 @@ by Python 3.7
 """
 #-----------------------------------------------------------------------------
 #TelemetryFile.csv
-telemetryFileName = "telemetryFile.csv"
-
+telemetryFileName = "Barcelona_GP_F132.csv"
 firstLine = 2
 rowDist = 1
 rowSpeed = 2
@@ -39,6 +39,8 @@ import numpy as np
 import scipy.signal as signal
 import matplotlib.pyplot as plt
 import datetime
+from pathlib import Path
+import os
 
 class TrackFileBuilder:
     
@@ -49,7 +51,8 @@ class TrackFileBuilder:
         self.rowDist = rowDist
         self.rowSpeed = rowSpeed
         self.rowGlat = rowGlat
-        self.trackFilesPath = ""
+        self.cwd = os.getcwd()
+        self.trackFilesPath = str(Path(self.cwd).parent)
      
     def loadTelemetryFile(self):
     
@@ -113,10 +116,9 @@ class TrackFileBuilder:
     
     @staticmethod
     def createNewTrackFile(telemDist, curvature,trackFilesPath):
-        
         time = datetime.datetime.now()
         timestrf = time.strftime("%b-%d-%Y")
-        NewTrackFileName = (trackFilesPath+"NewTrackFile_" + str(timestrf) + ".txt")
+        NewTrackFileName = (trackFilesPath+"/trackFiles\TrackFile_"+str(timestrf)+".txt")
         newFile = open(NewTrackFileName, "w")
         
         for i in range(len(telemDist)):  
@@ -135,13 +137,12 @@ class TrackFileBuilder:
         dist2 = track2[:,0]
         curv2 = track2[:,1]
         
-        from matplotlib import pyplot as plt
         plt.figure(3)
         plt.title("Calculated Curvature")
         plt.plot(dist1,curv1,'r-', label = TrackFile1)
         plt.plot(dist2,curv2,'b-', label = TrackFile2)
         plt.xlabel('distance [m]')
-        plt.ylabel('curvature [1/m]')
+        plt.ylabel('curvature [1/R]')
         plt.grid(b=True,which='major',linestyle=':')
         plt.show
     

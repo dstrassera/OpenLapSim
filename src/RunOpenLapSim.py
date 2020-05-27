@@ -97,6 +97,8 @@ class RunOpenLapSim:
             if self.bPlotExtra==1 :
                 pP.plotLapTimeSimExtra()
                 pP.f3.show()
+                pP.plotAccEnvExtra()
+                pP.f4.show()
             pP.printData()
             
             # set output channels from simulation

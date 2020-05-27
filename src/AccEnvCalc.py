@@ -18,6 +18,7 @@ class AccEnvCalc:
         self.mbrk    = setupDict["mbrk"]
         self.gripx   = setupDict["gripx"]
         self.gripy   = setupDict["gripy"]
+        self.loadEff = setupDict["loadEff"]
         self.rtyre   = setupDict["rtyre"]
         self.rGearRat = setupDict["rGearRat"]
         self.reff    = setupDict["reff"]
@@ -29,12 +30,22 @@ class AccEnvCalc:
         self.pi      = sc.pi    # 3.14159
         #parameters
         self.nSteps = 20
+        self.LOAD_EFF_SCALE = 10000 #[N]
         #output
         self.accEnvDict = {
             "vxvect"    : None, 
             "axacc"     : None,
             "axdec"     : None,
             "ay"        : None,
+            # extra Channels
+            "nGear"     : None,
+            "EngNm"     : None,
+            "EngRpm"    : None,
+            "Fzaero"    : None,
+            "Fxaero"    : None,
+            "gripx"     : None,
+            "gripy"     : None,
+            "FxGrip"    : None,
         }
     
     #VxMax Calculation (forces equilibrium)
@@ -54,8 +65,15 @@ class AccEnvCalc:
                 else:
                     meng[i] = 0
                 Mfinaldrive[i] = meng[i]*self.rGearRat[i]
-            outMfinaldrive = max(Mfinaldrive)
-            return outMfinaldrive
+            # from the Mfinaldrive[i] array select index which has max Torque
+            indexArray = np.where(Mfinaldrive == np.amax(Mfinaldrive))
+            #outMfinaldrive = max(Mfinaldrive)
+            index = indexArray[0][0]# WARNING can have 2 pos with same resutl!!!
+            outMfinaldrive = Mfinaldrive[index]
+            outmeng = meng[index]
+            outneng = neng[index]
+            outnGear = index+1
+            return  outMfinaldrive, outmeng, outneng, outnGear
             
         def Fxaero(vx):
             outFxaero = 0.5*self.rho*pow(vx,2)*self.afrcar*self.cx #[N]
@@ -65,10 +83,15 @@ class AccEnvCalc:
             outFzaero = 0.5*self.rho*pow(vx,2)*self.afrcar*self.clt #[N]
             return outFzaero
         
+        def gripLoadEff(grip, fz):
+            deltaGripLoadEff = grip*(self.loadEff*(fz/self.LOAD_EFF_SCALE))
+            newGrip = grip - deltaGripLoadEff
+            return newGrip
+        
         vxmax = 1
         e = 0.1
-        while e>0.05:
-            e =((Mfinaldrive(vxmax,self.EngNm,self.EngRpm,self.rGearRat)/self.rtyre)-Fxaero(vxmax))/self.mcar
+        while e>0.05: 
+            e =((Mfinaldrive(vxmax,self.EngNm,self.EngRpm,self.rGearRat)[0]/self.rtyre)-Fxaero(vxmax))/self.mcar
             vxmax += 0.1
         
         # Ax & Ay Calculation
@@ -79,18 +102,25 @@ class AccEnvCalc:
             
         ay = [0]*len(vxvect)
         for i in range(len(vxvect)):
-            ay[i] = (Fzaero(vxvect[i])+self.mcar*self.g)*self.gripy/self.mcar
+            Fzaero_ = Fzaero(vxvect[i])
+            ay[i] = (Fzaero_+self.mcar*self.g)*gripLoadEff(self.gripy,Fzaero_)/self.mcar
                 
         Fxbrk = self.mbrk/self.rtyre
         axacc = [0]*len(vxvect)
         axdec = [0]*len(vxvect)
         Fxgrip = [0]*len(vxvect)
         Fxaero_ = [0]*len(vxvect)
+        Fzaero_ = [0]*len(vxvect)
         Fxdrive = [0]*len(vxvect)
+        outmeng = [0]*len(vxvect)
+        outneng = [0]*len(vxvect)
+        outnGear = [0]*len(vxvect)
         for i in range(len(vxvect)):
-            Fxgrip[i]=(Fzaero(vxvect[i])+self.mcar*self.g)*self.gripx #grip limit Fx
+            Fzaero_[i] = Fzaero(vxvect[i])
+            Fxgrip[i]=(Fzaero_[i]+self.mcar*self.g)*gripLoadEff(self.gripx,Fzaero_[i]) #grip limit Fx
             Fxaero_[i] = Fxaero(vxvect[i])
-            Fxdrive[i] = Mfinaldrive(vxvect[i],self.EngNm,self.EngRpm,self.rGearRat)*self.reff/self.rtyre
+            outMfinaldrive, outmeng[i], outneng[i], outnGear[i] = Mfinaldrive(vxvect[i],self.EngNm,self.EngRpm,self.rGearRat)
+            Fxdrive[i] = outMfinaldrive*self.reff/self.rtyre
             axacc[i] = max(0,(min(Fxdrive[i],Fxgrip[i])-Fxaero_[i])/self.mcar)
             axdec[i] = -(min(Fxbrk,Fxgrip[i])+Fxaero_[i])/self.mcar 
             
@@ -98,7 +128,16 @@ class AccEnvCalc:
             "vxvect"    : vxvect, 
             "axacc"     : axacc,
             "axdec"     : axdec,
-            "ay"        : ay, 
+            "ay"        : ay,
+            # extra Channels
+            "nGear"     : outnGear,
+            "EngNm"     : outmeng,
+            "EngRpm"    : outneng,
+            "Fzaero"    : Fzaero_,
+            "Fxaero"    : Fxaero_,
+            "gripx"     : None,
+            "gripy"     : None,
+            "FxGrip"    : Fxgrip,
         }
         
         print("AccEnvCalc completed")

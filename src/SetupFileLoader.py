@@ -13,6 +13,7 @@ Below an example of setupFile.json (REMOUVE comments "#..." on real JSON file)
     "mbrk"		: 7000,       #[m2]; Max Braking Torque
     "gripx"		: 1.0,        #tyre friction coeff long
     "gripy"		: 1.25,       #tyre friction coeff lat
+    "loadEff"   : 0.10,       #grip Load Effect % / 1KN of Fz
     "rtyre"		: 0.32,       #[m]; tyre radius
     "rGearRat"	: [10.0,7.8,6.1,7.8,5.2,4.5,4.0],  #Final Gear Ratio
     "reff"		: 0.95,       # drive line efficiency
