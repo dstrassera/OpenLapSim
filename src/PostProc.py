@@ -29,7 +29,9 @@ class PostProc:
         self.EngRpm   = accEnvDict["EngRpm"]
         self.Fzaero   = accEnvDict["Fzaero"]
         self.Fxaero   = accEnvDict["Fxaero"]
-        self.FxGrip   = accEnvDict["FxGrip"]
+        self.Fxgrip   = accEnvDict["Fxgrip"]
+        self.Fxdrive   = accEnvDict["Fxdrive"]
+        
         # output
         self.f1 = None
         self.f2 = None
@@ -54,7 +56,8 @@ class PostProc:
         ax1.set_title("Forces[N] (vcar[m/s])")
         ax1.plot(self.Fzaero,self.vxvect,'c-',label="Fzaero")
         ax1.plot(self.Fxaero,self.vxvect,'m-',label = "Fxaero")
-        ax1.plot(self.FxGrip,self.vxvect,'r-',label = "FxGrip")
+        ax1.plot(self.Fxgrip,self.vxvect,'r-',label = "FxGrip")
+        ax1.plot(self.Fxdrive,self.vxvect,'g-',label = "FxDrive")
         ax1.legend()
         ax1.grid(b=True,which='major',linestyle=':')
         

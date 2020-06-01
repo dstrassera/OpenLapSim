@@ -24,7 +24,7 @@ by Python 3.7
 """
 #-----------------------------------------------------------------------------
 #TelemetryFile.csv
-telemetryFileName = "Barcelona_GP_F132.csv"
+telemetryFileName = "telemetryFile.csv"
 firstLine = 2
 rowDist = 1
 rowSpeed = 2

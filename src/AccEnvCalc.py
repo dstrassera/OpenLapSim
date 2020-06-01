@@ -45,7 +45,8 @@ class AccEnvCalc:
             "Fxaero"    : None,
             "gripx"     : None,
             "gripy"     : None,
-            "FxGrip"    : None,
+            "Fxgrip"    : None,
+            "Fxdrive"    : None,
         }
     
     #VxMax Calculation (forces equilibrium)
@@ -103,7 +104,7 @@ class AccEnvCalc:
         ay = [0]*len(vxvect)
         for i in range(len(vxvect)):
             Fzaero_ = Fzaero(vxvect[i])
-            ay[i] = (Fzaero_+self.mcar*self.g)*gripLoadEff(self.gripy,Fzaero_)/self.mcar
+            ay[i] = (Fzaero_+self.mcar*self.g)*gripLoadEff(self.gripy,Fzaero_+self.mcar*self.g)/self.mcar
                 
         Fxbrk = self.mbrk/self.rtyre
         axacc = [0]*len(vxvect)
@@ -117,7 +118,7 @@ class AccEnvCalc:
         outnGear = [0]*len(vxvect)
         for i in range(len(vxvect)):
             Fzaero_[i] = Fzaero(vxvect[i])
-            Fxgrip[i]=(Fzaero_[i]+self.mcar*self.g)*gripLoadEff(self.gripx,Fzaero_[i]) #grip limit Fx
+            Fxgrip[i]=(Fzaero_[i]+self.mcar*self.g)*gripLoadEff(self.gripx,Fzaero_[i]+self.mcar*self.g) #grip limit Fx
             Fxaero_[i] = Fxaero(vxvect[i])
             outMfinaldrive, outmeng[i], outneng[i], outnGear[i] = Mfinaldrive(vxvect[i],self.EngNm,self.EngRpm,self.rGearRat)
             Fxdrive[i] = outMfinaldrive*self.reff/self.rtyre
@@ -137,7 +138,8 @@ class AccEnvCalc:
             "Fxaero"    : Fxaero_,
             "gripx"     : None,
             "gripy"     : None,
-            "FxGrip"    : Fxgrip,
+            "Fxgrip"    : Fxgrip,
+            "Fxdrive"   : Fxdrive,
         }
         
         print("AccEnvCalc completed")

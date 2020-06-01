@@ -4,6 +4,7 @@ src/trackFiles/
 src/setupFiles/
 !src/setupFiles/SetupFile.json
 src/docs/
+!src/docs/OpenLapSim_Doc.pdf
 !src/docs/OpenLapSim_Doc.odt
 src/exportFiles/
 src/utilities/
