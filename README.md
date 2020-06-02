@@ -1,5 +1,6 @@
 # OpenLapSim
 The Open Source Lap Time Simulation Software
+[www.openlapsim.com](https://www.openlapsim.com/)
 
 ***
 
