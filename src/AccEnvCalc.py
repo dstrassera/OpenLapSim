@@ -6,6 +6,9 @@ Acceleration Envelope Calculator - OLS
 # Import Packages
 import numpy as np
 import scipy.constants as sc
+import scipy.interpolate as interp
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 class AccEnvCalc:
         
@@ -29,7 +32,7 @@ class AccEnvCalc:
         self.g       = sc.g     # 9.80665
         self.pi      = sc.pi    # 3.14159
         #parameters
-        self.nSteps = 20
+        self.nSteps = 10
         self.LOAD_EFF_SCALE = 10000 #[N]
         #output
         self.accEnvDict = {
@@ -46,7 +49,10 @@ class AccEnvCalc:
             "gripx"     : None,
             "gripy"     : None,
             "Fxgrip"    : None,
-            "Fxdrive"    : None,
+            "Fxdrive"   : None,
+            # GGV
+            "GGVacc"    : None,
+            "GGVdec"    : None,
         }
     
     #VxMax Calculation (forces equilibrium)
@@ -141,6 +147,78 @@ class AccEnvCalc:
             "Fxgrip"    : Fxgrip,
             "Fxdrive"   : Fxdrive,
         }
+        
+        def generateGGV(axacc,axdec,ay,vxvect): 
+            nAx = 100
+            nVx = len(vxvect)
+            size = nVx*nAx
+            # GGV ACCELERATION
+            GGVacc = np.zeros((size,3)) # ay,ax,vx
+            for i in range (nVx):   
+                ayStep = np.absolute(ay[i])/(nAx)
+                for j in range(nAx):
+                    ayreal = ay[i] - ayStep*j
+                    axcombine = np.sqrt(np.absolute(np.power(axacc[i],2)*(1-(np.power(ayreal,2)/np.power(ay[i],2)))))
+                    index = (i*nAx)+j
+                    GGVacc[index,0] = np.round(axcombine,2)
+                    GGVacc[index,1] = np.round(ayreal,2)
+                    GGVacc[index,2] = np.round(vxvect[i],2)        
+            #GGV DECELERATION
+            GGVdec = np.zeros((size,3)) # ax,ay,vx
+            for i in range (nVx):   
+                ayStep = np.absolute(ay[i])/(nAx)
+                for j in range(nAx):
+                    ayreal = ay[i] - ayStep*j
+                    axcombine = - np.sqrt(np.absolute(np.power(axdec[i],2)*(1-(np.power(ayreal,2)/np.power(ay[i],2)))))
+                    index = ((i*nAx)+j)
+                    GGVdec[index,0] = np.round(axcombine,2)
+                    GGVdec[index,1] = np.round(ayreal,2)
+                    GGVdec[index,2] = np.round(vxvect[i],2)     
+            return GGVacc, GGVdec
+        
+        ay = self.accEnvDict["ay"]
+        axdec = self.accEnvDict["axdec"]
+        axacc = self.accEnvDict["axacc"]
+        vxvect = self.accEnvDict["vxvect"]
+        
+        GGVacc, GGVdec = generateGGV(axacc,axdec,ay,vxvect)
+        
+#        GGVaccLeft = GGVacc* [1,-1,1]
+#        GGVacc = np.concatenate((GGVacc,GGVaccLeft))
+#        GGVdecLeft = GGVdec* [1,-1,1]
+#        GGVdec = np.concatenate((GGVdec,GGVdecLeft))        
+        
+        self.accEnvDict["GGVacc"] = GGVacc
+        self.accEnvDict["GGVdec"] = GGVdec
+        
+        xyz1 = GGVacc
+        X1= xyz1[:,0]
+        Y1= xyz1[:,1]
+        Z1= xyz1[:,2]
+        ploty1,plotz1, = np.meshgrid(np.linspace(np.min(Y1),np.max(Y1),30),\
+                                   np.linspace(np.min(Z1),np.max(Z1),30))
+        plotx1 = interp.griddata((Y1,Z1),X1,(ploty1,plotz1),method='linear')
+        
+        xyz2 = GGVdec
+        X2= xyz2[:,0]
+        Y2= xyz2[:,1]
+        Z2= xyz2[:,2]
+        ploty2,plotz2, = np.meshgrid(np.linspace(np.min(Y2),np.max(Y2),30),\
+                                   np.linspace(np.min(Z2),np.max(Z2),30))
+        plotx2 = interp.griddata((Y2,Z2),X2,(ploty2,plotz2),method='linear')
+        
+        
+        axcombine = interp.griddata((Y2,Z2),X2,(0.0,40),method='linear')
+        print(axcombine)
+        
+        
+        fig = plt.figure(5)
+        ax = fig.add_subplot(111, projection='3d')
+        ax.plot_surface(plotx1,ploty1,plotz1,cstride=1,rstride=1,cmap='viridis')
+        ax.scatter(X1,Y1,Z1)
+        ax.plot_surface(plotx2,ploty2,plotz2,cstride=1,rstride=1,cmap='viridis')
+        ax.scatter(X2,Y2,Z2)
+
         
         print("AccEnvCalc completed")
 

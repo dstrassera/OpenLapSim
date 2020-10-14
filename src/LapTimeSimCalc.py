@@ -6,6 +6,7 @@ Lap Time Simulation Calculator - OLS
 # Import Packages
 import numpy as np
 import math as mt
+import scipy.interpolate as interp
 
 class LapTimeSimCalc:
     
@@ -16,6 +17,8 @@ class LapTimeSimCalc:
             self.axacc      = accEnvDict["axacc"]
             self.axdec      = accEnvDict["axdec"]
             self.ay         = accEnvDict["ay"]
+            self.GGVacc     = accEnvDict["GGVacc"] # ax,ay,vx
+            self.GGVdec     = accEnvDict["GGVdec"] # ax,ay,vx
             self.vxaccStart = vxaccStart
             #outputs
             self.lapTimeSimDict = {
@@ -51,15 +54,18 @@ class LapTimeSimCalc:
             #Max Acceleration Speed
             vxacc = np.zeros(len(curv))
             vxacc[0] = self.vxaccStart #must be the last vacc
-            axaccmap = np.zeros(len(curv))
-            aymap = np.zeros(len(curv))
+#            axaccmap = np.zeros(len(curv))
+#            aymap = np.zeros(len(curv))
             ayreal = np.zeros(len(curv))
             axcombine = np.zeros(len(curv))
+            X,Y,Z = self.GGVacc[:,0],self.GGVacc[:,1],self.GGVacc[:,2]
             for i in range(len(dist)-1):
-                axaccmap[i] = np.interp(vxacc[i],self.vxvect,self.axacc,period=360)
-                aymap[i] = max(np.interp(vxacc[i],self.vxvect,self.ay,period=360),small)
+#                axaccmap[i] = np.interp(vxacc[i],self.vxvect,self.axacc,period=360)
+#                aymap[i] = max(np.interp(vxacc[i],self.vxvect,self.ay,period=360),small)
                 ayreal[i] = pow(vxacc[i],2)/(1/max(curv[i],small))
-                axcombine[i] = axaccmap[i]*mt.sqrt(np.absolute(1-(ayreal[i]/aymap[i])))
+#                axcombine[i] = axaccmap[i]*mt.sqrt(np.absolute(1-(ayreal[i]/aymap[i])))
+                ay = max(ayreal[i],0)
+                axcombine[i] = interp.griddata((Y,Z),X,(ay,vxacc[i]),method='linear')
                 vxacc[i+1] = min(vxcor[i+1],(vxacc[i]+(dist[i+1]-dist[i])/vxacc[i]*axcombine[i]))
                 
             #Max Deceleration Speed
