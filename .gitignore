@@ -3,12 +3,10 @@ src/trackFiles/
 !src/trackFiles/TrackFile.txt
 src/setupFiles/
 !src/setupFiles/SetupFile.json
-src/docs/
-!src/docs/OpenLapSim_Doc.pdf
-!src/docs/OpenLapSim_Doc.odt
 src/exportFiles/
 src/utilities/
 !src/utilities/TrackFileBuilder.py
+docs/SwEng/
+docs/WebSite/
 .gitgnore
-ToDo.txt
-
+TODO.md

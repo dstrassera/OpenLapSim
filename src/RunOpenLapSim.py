@@ -88,19 +88,6 @@ class RunOpenLapSim:
             l2 = LapTimeSimCalc(trackFile,aE.accEnvDict,l1.lapTimeSimDict["vxaccEnd"])
             l2.Run()
             
-            # Post Processing
-            pP = PostProc(aE.accEnvDict, l2.lapTimeSimDict)
-            pP.plotAccEnv()
-            pP.f1.show()
-            pP.plotLapTimeSim()
-            pP.f2.show()
-            if self.bPlotExtra==1 :
-                pP.plotLapTimeSimExtra()
-                pP.f3.show()
-                pP.plotAccEnvExtra()
-                pP.f4.show()
-            pP.printData()
-            
             # set output channels from simulation
             vcar = l2.lapTimeSimDict["vcar"] #car speed [m/s]
             dist = l2.lapTimeSimDict["dist"] #circuit dist [m]
@@ -108,6 +95,19 @@ class RunOpenLapSim:
             # export
             if self.bExport==1:
                 RunOpenLapSim.createExportSimFile(vcar, dist,self.exportFilesPath)
+            # Post Processing
+            pP = PostProc(aE.accEnvDict, l2.lapTimeSimDict)
+            pP.printData()
+            pP.plotAccEnv()
+            #pP.f1.show()
+            pP.plotLapTimeSim()
+            #pP.f2.show()
+            if self.bPlotExtra==1 :
+                pP.plotLapTimeSimExtra()
+                #pP.f3.show()
+                pP.plotAccEnvExtra()
+                #pP.f4.show()
+            plt.show() #plot all figure once at the end
 
 #-----------------------------------------------------------------------------
 

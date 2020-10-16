@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class PostProc:
-    
+ 
     def __init__(self, accEnvDict, lapSimTimeDict):
         self.size   = 10
         # input
@@ -32,14 +32,8 @@ class PostProc:
         self.Fxgrip   = accEnvDict["Fxgrip"]
         self.Fxdrive   = accEnvDict["Fxdrive"]
         
-        # output
-        self.f1 = None
-        self.f2 = None
-        self.f3 = None
-        self.f4 = None
-        
     def plotAccEnv(self):
-        f = plt.figure(1,figsize=(self.size/2,self.size/2))
+        plt.figure(1,figsize=(self.size/2,self.size/2))
         plt.title("Acceleration Envelope")
         plt.plot(self.ay,self.vxvect,'c-',label="ay")
         plt.plot(self.axacc,self.vxvect,'m-',label = "axacc")
@@ -49,7 +43,6 @@ class PostProc:
         plt.ylabel('velocity [m/s]')
         plt.grid(b=True,which='major',linestyle=':')
         plt.ylim(0,self.vcarmax*1.2)
-        self.f1 = f
         
     def plotAccEnvExtra(self):
         f, (ax1, ax2, ax3, ax4) = plt.subplots(1,4,figsize=(self.size*1.5,self.size/2))
@@ -75,10 +68,9 @@ class PostProc:
         ax4.plot(self.EngRpm,self.vxvect,'c-',label="EngRpm")
         ax4.legend()
         ax4.grid(b=True,which='major',linestyle=':')
-        self.f4 = f
 
     def plotLapTimeSim(self):
-        f = plt.figure(2,figsize=(self.size,self.size/2))
+        plt.figure(2,figsize=(self.size,self.size/2))
         plt.title("Lap Time Simulation")
         plt.plot(self.dist,self.vcar,'b-',linewidth=2,label = "vcar")
         plt.xlabel('distance [m]')
@@ -87,10 +79,9 @@ class PostProc:
         plt.grid(b=True,which='major',linestyle=':')
         plt.ylim(0,self.vcarmax*1.2)
         plt.xlim(0,max(self.dist))
-        self.f2 = f
         
     def plotLapTimeSimExtra(self):
-        f = plt.figure(3,(self.size,self.size/2))
+        plt.figure(3,(self.size,self.size/2))
         plt.title("Lap Time Simulation - Extra")
         plt.plot(self.dist,self.vxcor,'c-',label = "vxcor")
         plt.plot(self.dist,self.vxacc,'m-',label = "vxacc")
@@ -102,7 +93,6 @@ class PostProc:
         plt.grid(b=True,which='major',linestyle=':')
         plt.ylim(0,self.vcarmax*1.2)
         plt.xlim(0,max(self.dist))
-        self.f3 = f
         
     def printData(self):
         print("PostProc completed")
