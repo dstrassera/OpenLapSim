@@ -29,7 +29,7 @@ class AccEnvCalc:
         self.g       = sc.g     # 9.80665
         self.pi      = sc.pi    # 3.14159
         #parameters
-        self.nSteps = 20
+        self.nSteps = 21
         self.LOAD_EFF_SCALE = 10000 #[N]
         #output
         self.accEnvDict = {
@@ -97,10 +97,10 @@ class AccEnvCalc:
         
         # Ax & Ay Calculation
         nSteps = self.nSteps
-        vxstep = vxmax/nSteps+1
+        vxstep = vxmax/(nSteps-1)
         small = 0.00000001 # to avoid division by zero
-        vxvect = np.arange(small,vxmax,vxstep)
-            
+        vxvect = np.arange(small,np.ceil(vxmax),vxstep)
+
         ay = [0]*len(vxvect)
         for i in range(len(vxvect)):
             Fzaero_ = Fzaero(vxvect[i])
