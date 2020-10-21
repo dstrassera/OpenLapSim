@@ -17,7 +17,7 @@ class test_LapTimeSimCalc(unittest.TestCase):
 
     def test_1(self):
         actual = self.ROLS.laptime 
-        expected = 121.813  # laptime 
+        expected = 121.814  # laptime 
         self.assertEqual(actual, expected, "Error in test 1")
 
 

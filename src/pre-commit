@@ -7,6 +7,6 @@ make tests
 
 # based on the output code $? (0 is OK else error)
 if [ $? -ne 0 ]; then
-	cat < "This commit is aborted because paper.pdf failed."
+	cat < "This commit is aborted because make tests failed." 
 	exit 1
 fi

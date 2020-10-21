@@ -15,7 +15,8 @@ if [[ -f $FILE2 ]]; then
 fi
 
 BASEPATH=$(pwd)
-ln -s $BASEPATH/pre-commit ../.git/hooks/pre-commit
+#ln -s $BASEPATH/pre-commit ../.git/hooks/pre-commit
+cp $BASEPATH/pre-commit ../.git/hooks/pre-commit
 
 if [[ $? -eq 0 ]]; then
 	echo "created .git/hooks/pre-commit symbolic link"
