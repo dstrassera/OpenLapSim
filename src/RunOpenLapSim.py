@@ -113,7 +113,7 @@ if __name__ == '__main__':
     trackFileName = "TrackFile.txt"
     # Additional Options
     bExport = 1
-    bPlot = 0
+    bPlot = 1
     bPlotExtra = 0
 
     # object instantiation
