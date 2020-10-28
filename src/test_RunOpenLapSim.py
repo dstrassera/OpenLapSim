@@ -12,12 +12,13 @@ class test_LapTimeSimCalc(unittest.TestCase):
     bExport = 0
     bPlot = 0
     bPlotExtra = 0
-    ROLS = RunOpenLapSim(setupFileName, trackFileName, bExport, bPlot,  bPlotExtra)
+    ROLS = RunOpenLapSim(setupFileName, trackFileName,
+                         bExport, bPlot,  bPlotExtra)
     ROLS.run()
 
     def test_1(self):
-        actual = self.ROLS.laptime 
-        expected = 121.814  # laptime 
+        actual = self.ROLS.laptime
+        expected = 121.814  # laptime
         self.assertEqual(actual, expected, "Error in test 1")
 
 

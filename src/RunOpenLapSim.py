@@ -2,7 +2,7 @@
 ---------------------------
 OpenLapSim - OLS
 ---------------------------
-This is a quasi-static Lap Time Simulator for a simple point mass vehicle 
+This is a quasi-static Lap Time Simulator for a simple point mass vehicle
 with aero forces, constant tyre grip(x and y), engine torque map and gears.
 
 Steps:
@@ -17,21 +17,23 @@ by Python 3.7
 ---------------------------
 
 """
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 
 # import packages generic
 import datetime
+import matplotlib.pyplot as plt
 
 # import packages (OLP)
-from AccEnvCalc import*
-from LapTimeSimCalc import*
-from PostProc import*
-from SetupFileLoader import*
+from AccEnvCalc import AccEnvCalc
+from LapTimeSimCalc import LapTimeSimCalc
+from PostProc import PostProc
+from SetupFileLoader import SetupFileLoader
 
 
 class RunOpenLapSim:
-    
-    def __init__(self, setupFileName, trackFileName, bExport, bPlot, bPlotExtra): 
+
+    def __init__(self, setupFileName, trackFileName,
+                 bExport, bPlot, bPlotExtra):
         # inputs
         self.setupFileName = setupFileName
         self.trackFileName = trackFileName
@@ -46,46 +48,48 @@ class RunOpenLapSim:
         self.vcarmax = None
 
     @staticmethod
-    def createExportSimFile(vcar, dist,exportFilesPath):        
+    def createExportSimFile(vcar, dist, exportFilesPath):
         time = datetime.datetime.now()
         timestrf = time.strftime("%b-%d-%Y")
-        NewExportFileName = (exportFilesPath+"SimExport_" + str(timestrf) + ".txt")
+        NewExportFileName = (exportFilesPath + "SimExport_"
+                             + str(timestrf) + ".txt")
         newFile = open(NewExportFileName, "w")
-        
-        for i in range(len(dist)):  
+
+        for i in range(len(dist)):
             lineToWrite = (str(dist[i]) + "\t" + str(vcar[i]) + "\n")
             newFile.write(lineToWrite)
         newFile.close()
-        return NewExportFileName;
-    
-    def run(self):                       
+        return NewExportFileName
+
+    def run(self):
         """
         ---------------------------
         Run Simulation
         ---------------------------
         """
-        #SetupFile obj instantiation
+        # SetupFile obj instantiation
         s = SetupFileLoader(self.setupFilesPath + self.setupFileName)
         s.loadJSON()
-        
+
         # Run Acceleration Envelope
         aE = AccEnvCalc(s.setupDict)
         aE.Run()
-        
+
         # Run Lap time Simulation
         trackFile = (self.trackFilesPath+self.trackFileName)
-        l1 = LapTimeSimCalc(trackFile,aE.accEnvDict,10)
+        l1 = LapTimeSimCalc(trackFile, aE.accEnvDict, 10)
         l1.Run()
-        l2 = LapTimeSimCalc(trackFile,aE.accEnvDict,l1.lapTimeSimDict["vxaccEnd"])
+        l2 = LapTimeSimCalc(trackFile, aE.accEnvDict,
+                            l1.lapTimeSimDict["vxaccEnd"])
         l2.Run()
-        
+
         # set output channels from simulation for Export
-        vcar = l2.lapTimeSimDict["vcar"] #car speed [m/s]
-        dist = l2.lapTimeSimDict["dist"] #circuit dist [m]
-        
+        vcar = l2.lapTimeSimDict["vcar"]  # car speed [m/s]
+        dist = l2.lapTimeSimDict["dist"]  # circuit dist [m]
+
         # export
-        if self.bExport==1:
-            RunOpenLapSim.createExportSimFile(vcar, dist,self.exportFilesPath)
+        if self.bExport == 1:
+            RunOpenLapSim.createExportSimFile(vcar, dist, self.exportFilesPath)
 
         # Post Processing
         pP = PostProc(aE.accEnvDict, l2.lapTimeSimDict)
@@ -117,5 +121,6 @@ if __name__ == '__main__':
     bPlotExtra = 0
 
     # object instantiation
-    runOpenLapSim = RunOpenLapSim(setupFileName, trackFileName, bExport, bPlot, bPlotExtra)
+    runOpenLapSim = RunOpenLapSim(setupFileName, trackFileName,
+                                  bExport, bPlot, bPlotExtra)
     runOpenLapSim.run()
