@@ -1,3 +1,6 @@
+[![GitHub license](https://img.shields.io/github/license/dstrassera/OpenLapSim)](https://github.com/dstrassera/OpenLapSim/blob/master/LICENSE.txt)
+[![Actions Status](https://github.com/dstrassera/OpenLapSim/workflows/Python%20test/badge.svg)](https://github.com/dstrassera/OpenLapSim/actions)
+
 # OpenLapSim
 The Open Source Lap Time Simulation Software
 [www.openlapsim.com](https://www.openlapsim.com/)
