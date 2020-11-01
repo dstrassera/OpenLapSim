@@ -6,6 +6,7 @@ src/setupFiles/
 src/exportFiles/
 src/utilities/
 !src/utilities/TrackFileBuilder.py
+!src/utilities/SimFileCompare.py
 docs/SwEng/
 docs/WebSite/
 .gitgnore
