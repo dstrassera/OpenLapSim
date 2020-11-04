@@ -42,16 +42,17 @@ class LapTimeSimCalc:
             #Speed Calculations
             small = 0.00000001 # to avoid division by zero
             
-            #Max Cornering Speed
-            curvvect = 1/(pow(self.vxvect,2)/self.ay)
+            # 1. Max Cornering Speed
+            curvvect = 1/(pow(self.vxvect,2)/self.ay) # ay=v^2/R
             curvvect[0] = 0.5
             curvclipped = np.zeros(len(curv))
             for i in range(len(curv)):
                 #curvature clipped to max speed
                 curvclipped[i] = max(np.absolute(curv[i]),min(curvvect))
+            # v corner from pure lateral (ay)
             vxcor = np.interp(curvclipped,curvvect,self.vxvect,period=360)
             
-            #Max Acceleration Speed
+            # 2. Max Acceleration Speed
             vxacc = np.zeros(len(curv))
             vxacc[0] = self.vxaccStart #must be the last vacc
 #            axaccmap = np.zeros(len(curv))
@@ -66,9 +67,9 @@ class LapTimeSimCalc:
 #                axcombine[i] = axaccmap[i]*mt.sqrt(np.absolute(1-(ayreal[i]/aymap[i])))
                 ay = max(ayreal[i],0)
                 axcombine[i] = interp.griddata((Y,Z),X,(ay,vxacc[i]),method='linear')
-                vxacc[i+1] = min(vxcor[i+1],(vxacc[i]+(dist[i+1]-dist[i])/vxacc[i]*axcombine[i]))
+                vxacc[i+1] = (vxacc[i]+(dist[i+1]-dist[i])/vxacc[i]*axcombine[i])
                 
-            #Max Deceleration Speed
+            # 3. Max Deceleration Speed
             vxdec = np.zeros(len(curv))
             vxdec[-1] = vxacc[-1]
             axdecmap = np.zeros(len(curv))

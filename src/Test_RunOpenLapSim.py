@@ -38,7 +38,7 @@ import datetime
 
 # import packages (OLP)
 from AccEnvCalc import*
-from LapTimeSimCalc import*
+from LapTimeSimCalc_Test import*
 from PostProc import*
 from SetupFileLoader import SetupFileLoader
 
@@ -85,29 +85,6 @@ class RunOpenLapSim:
             trackFile = (self.trackFilesPath+self.trackFileName)
             l1 = LapTimeSimCalc(trackFile,aE.accEnvDict,10)
             l1.Run()
-            l2 = LapTimeSimCalc(trackFile,aE.accEnvDict,l1.lapTimeSimDict["vxaccEnd"])
-            l2.Run()
-            
-            # Post Processing
-            pP = PostProc(aE.accEnvDict, l2.lapTimeSimDict)
-            pP.plotAccEnv()
-            #pP.f1.show()
-            pP.plotLapTimeSim()
-            #pP.f2.show()
-            if self.bPlotExtra==1 :
-                pP.plotLapTimeSimExtra()
-                #pP.f3.show()
-                pP.plotAccEnvExtra()
-                #pP.f4.show()
-            pP.printData()
-            plt.show() 
-            # set output channels from simulation
-            vcar = l2.lapTimeSimDict["vcar"] #car speed [m/s]
-            dist = l2.lapTimeSimDict["dist"] #circuit dist [m]
-            
-            # export
-            if self.bExport==1:
-                RunOpenLapSim.createExportSimFile(vcar, dist,self.exportFilesPath)
 
 #-----------------------------------------------------------------------------
 

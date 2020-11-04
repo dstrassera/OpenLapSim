@@ -13,12 +13,15 @@ from mpl_toolkits.mplot3d import Axes3D
 
 xyz=np.array([[1,0,0],
              [0,-2,0],
+             [0.5,-1.9,0],
              [0,2,0],
              [1,0,1],
              [0,-2,1],
+             [0.5,-1.9,1],
              [0,2,1],
              [1,0,2],
              [0,-2,2],
+             [0.5,-1.9,2],
              [0,2,2]])
 
 X= xyz[:,0]
@@ -40,7 +43,7 @@ ax.scatter(X,Y,Z)
 plt.show()
 
 zVal = 150
-yVal = 1
+yVal = -2.0
 xInterp = interp.griddata((Y,Z),X,(yVal,zVal),method='linear')
 
 print(xInterp)
