@@ -32,7 +32,7 @@ class AccEnvCalc:
         self.g       = sc.g     # 9.80665
         self.pi      = sc.pi    # 3.14159
         #parameters
-        self.nSteps = 10
+        self.nSteps = 20
         self.LOAD_EFF_SCALE = 10000 #[N]
         #output
         self.accEnvDict = {
@@ -53,6 +53,7 @@ class AccEnvCalc:
             # GGV
             "GGVacc"    : None,
             "GGVdec"    : None,
+            "GGVfull"    : None,
         }
     
     #VxMax Calculation (forces equilibrium)
@@ -149,7 +150,7 @@ class AccEnvCalc:
         }
         
         def generateGGV(axacc,axdec,ay,vxvect): 
-            nAx = 100
+            nAx = 100 
             nVx = len(vxvect)
             size = nVx*nAx
             # GGV ACCELERATION
@@ -182,14 +183,17 @@ class AccEnvCalc:
         vxvect = self.accEnvDict["vxvect"]
         
         GGVacc, GGVdec = generateGGV(axacc,axdec,ay,vxvect)
-        
-#        GGVaccLeft = GGVacc* [1,-1,1]
-#        GGVacc = np.concatenate((GGVacc,GGVaccLeft))
-#        GGVdecLeft = GGVdec* [1,-1,1]
-#        GGVdec = np.concatenate((GGVdec,GGVdecLeft))        
+       
+        # Mirror the GGV to left and concat GGVacc and GGVdec 
+        GGVfull = np.concatenate((GGVacc, GGVdec))        
+        GGVaccLeft = GGVacc* [1,-1,1]
+        GGVacc = np.concatenate((GGVacc,GGVaccLeft))
+        GGVdecLeft = GGVdec* [1,-1,1]
+        GGVdec = np.concatenate((GGVdec,GGVdecLeft))        
         
         self.accEnvDict["GGVacc"] = GGVacc
         self.accEnvDict["GGVdec"] = GGVdec
+        self.accEnvDict["GGVfull"] = GGVfull
         
         xyz1 = GGVacc
         X1= xyz1[:,0]
@@ -197,7 +201,8 @@ class AccEnvCalc:
         Z1= xyz1[:,2]
         ploty1,plotz1, = np.meshgrid(np.linspace(np.min(Y1),np.max(Y1),30),\
                                    np.linspace(np.min(Z1),np.max(Z1),30))
-        plotx1 = interp.griddata((Y1,Z1),X1,(ploty1,plotz1),method='linear')
+        # Griddata
+        plotx1 = interp.griddata((Y1,Z1),X1,(ploty1,plotz1),method='linear',fill_value=0.0)
         
         xyz2 = GGVdec
         X2= xyz2[:,0]
@@ -205,10 +210,22 @@ class AccEnvCalc:
         Z2= xyz2[:,2]
         ploty2,plotz2, = np.meshgrid(np.linspace(np.min(Y2),np.max(Y2),30),\
                                    np.linspace(np.min(Z2),np.max(Z2),30))
-        plotx2 = interp.griddata((Y2,Z2),X2,(ploty2,plotz2),method='linear')
+        plotx2 = interp.griddata((Y2,Z2),X2,(ploty2,plotz2),method='linear', fill_value=0.0)
+       
+        xyz3= GGVfull
+        X3= xyz3[:,0]
+        Y3= xyz3[:,1]
+        Z3= xyz3[:,2]
+        plotx3,plotz3, = np.meshgrid(np.linspace(np.min(X3),np.max(X3),30),\
+                                   np.linspace(np.min(Z3),np.max(Z3),30))
+        # Griddata
+        ploty3 = interp.griddata((X3,Z3),Y3,(plotx3,plotz3),method='linear',fill_value=0.0)
+       
+        # RBF (radius basis function)
+        # rbfi = interp.Rbf(X3, Z3, Y3, functionc='cubic', smooth=0)  # default smooth=0 for interpolation
+        # ploty3 = rbfi(plotx3, plotz3)  # not really a function, but a callable class instance
         
-        
-        axcombine = interp.griddata((Y2,Z2),X2,(0.0,40),method='linear')
+        axcombine = interp.griddata((Y2,Z2),X2,(0.0,40),method='cubic')
         print(axcombine)
         
         
@@ -219,6 +236,10 @@ class AccEnvCalc:
         ax.plot_surface(plotx2,ploty2,plotz2,cstride=1,rstride=1,cmap='viridis')
         ax.scatter(X2,Y2,Z2)
 
+        fig = plt.figure(6)
+        ax = fig.add_subplot(111, projection='3d')
+        ax.plot_surface(plotx3,ploty3,plotz3,cstride=1,rstride=1,cmap='viridis')
+        ax.scatter(X3,Y3,Z3)
         
         print("AccEnvCalc completed")
 

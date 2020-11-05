@@ -10,7 +10,6 @@ import scipy.interpolate as interp
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-
 xyz=np.array([[1,0,0],
              [0,-2,0],
              [0.5,-1.9,0],
@@ -28,15 +27,23 @@ X= xyz[:,0]
 Y= xyz[:,1]
 Z= xyz[:,2]*100
 
-
 ploty,plotz, = np.meshgrid(np.linspace(np.min(Y),np.max(Y),10),\
                            np.linspace(np.min(Z),np.max(Z),10))
-plotx = interp.griddata((Y,Z),X,(ploty,plotz),method='linear')
+# Griddata
+plotx1 = interp.griddata((Y,Z),X,(ploty,plotz),method='linear')
 
-fig = plt.figure()
+# RBF (radius basis function)
+rbfi = interp.Rbf(Y, Z, X, functionc='cubic', smooth=0)  # default smooth=0 for interpolation
+plotx2 = rbfi(ploty, plotz)  # not really a function, but a callable class instance
+
+
+fig = plt.figure(1)
 ax = fig.add_subplot(111, projection='3d')
-ax.plot_surface(plotx,ploty,plotz,cstride=1,rstride=1,cmap='viridis')  # or 'hot'
+ax.plot_surface(plotx1,ploty,plotz,cstride=1,rstride=1,cmap='viridis')  # or 'hot'
 
+fig = plt.figure(2)
+ax = fig.add_subplot(111, projection='3d')
+ax.plot_surface(plotx2,ploty,plotz,cstride=1,rstride=1,cmap='viridis')  # or 'hot'
 fig = plt.figure(5)
 ax = fig.add_subplot(111, projection='3d')
 ax.scatter(X,Y,Z)

@@ -20,6 +20,7 @@ class LapTimeSimCalc:
             self.ay         = accEnvDict["ay"]
             self.GGVacc     = accEnvDict["GGVacc"] # ax,ay,vx
             self.GGVdec     = accEnvDict["GGVdec"] # ax,ay,vx
+            self.GGVfull     = accEnvDict["GGVfull"] # ax,ay,vx
             self.vxaccStart = vxaccStart
             #outputs
             self.lapTimeSimDict = {
@@ -37,22 +38,25 @@ class LapTimeSimCalc:
 
         def Run(self):
             small = 0.0000001
+
             # GGV std
             def GGVstd(self, vxacc, ayreal):
                 axaccmap = np.interp(vxacc, self.vxvect, self.axacc, period=360)
                 aymap = max(np.interp(vxacc, self.vxvect, self.ay, period=360), small)
                 # ayreal = pow(vxacc, 2)/(1/max(curv, small))
-                axcombine = axaccmap*mt.sqrt(np.absolute(1-(ayreal/aymap)))
+                # axcombine = axaccmap*mt.sqrt(np.absolute(1-(ayreal/aymap)))
+                axcombine = np.sqrt(np.absolute(np.power(axaccmap,2)*(1-(np.power(ayreal,2)/np.power(aymap,2)))))
                 return axcombine
  
             # GGV surface
             def GGVsurf(self, vxacc, ayreal):
                 X,Y,Z = self.GGVacc[:,0],self.GGVacc[:,1],self.GGVacc[:,2]
+                # X,Y,Z = self.GGVfull[:,0],self.GGVfull[:,1],self.GGVfull[:,2]
                 ay = ayreal
-                axcombine = interp.griddata((Y,Z),X,(ay,vxacc),method='linear')
+                axcombine = interp.griddata((Y,Z),X,(ay,vxacc),method='linear')#,fill_value=0.0)
                 return axcombine
 
-            vxacc = 00
+            vxacc = 30
             #ayrealarr = [0, 10, 20, 30, 40, 50, 60, 70] 
             ayrealarr = np.array([0, 2, 4, 6, 8, 10, 12, 14, 16])
             axcombine_std = np.zeros(len(ayrealarr))
@@ -66,7 +70,7 @@ class LapTimeSimCalc:
                 print("GGVstd: ", axcombine_std[i])
                 print("GGVsurf: ", axcombine_surf[i])
                 i = i+1
-            print(ayrealarr," ", axcombine_std) 
+            # print(ayrealarr," ", axcombine_std) 
             plt.figure(1)
             plt.plot(axcombine_std, ayrealarr, 'o-', label="GGV std")
             plt.plot(axcombine_surf, ayrealarr, 'o-', label="GGV surf")

@@ -38,7 +38,7 @@ import datetime
 
 # import packages (OLP)
 from AccEnvCalc import*
-from LapTimeSimCalc_Test import*
+from Test_LapTimeSimCalc import*
 from PostProc import*
 from SetupFileLoader import SetupFileLoader
 
