@@ -150,7 +150,7 @@ class AccEnvCalc:
         }
         
         def generateGGV(axacc,axdec,ay,vxvect): 
-            nAx = 100 
+            nAx = 25 
             nVx = len(vxvect)
             size = nVx*nAx
             # GGV ACCELERATION
@@ -185,12 +185,12 @@ class AccEnvCalc:
         GGVacc, GGVdec = generateGGV(axacc,axdec,ay,vxvect)
        
         # Mirror the GGV to left and concat GGVacc and GGVdec 
-        GGVfull = np.concatenate((GGVacc, GGVdec))        
         GGVaccLeft = GGVacc* [1,-1,1]
         GGVacc = np.concatenate((GGVacc,GGVaccLeft))
         GGVdecLeft = GGVdec* [1,-1,1]
         GGVdec = np.concatenate((GGVdec,GGVdecLeft))        
-        
+        GGVfull = np.concatenate((GGVacc, GGVdec))        
+
         self.accEnvDict["GGVacc"] = GGVacc
         self.accEnvDict["GGVdec"] = GGVdec
         self.accEnvDict["GGVfull"] = GGVfull
@@ -216,10 +216,6 @@ class AccEnvCalc:
         X3= xyz3[:,0]
         Y3= xyz3[:,1]
         Z3= xyz3[:,2]
-        plotx3,plotz3, = np.meshgrid(np.linspace(np.min(X3),np.max(X3),30),\
-                                   np.linspace(np.min(Z3),np.max(Z3),30))
-        # Griddata
-        ploty3 = interp.griddata((X3,Z3),Y3,(plotx3,plotz3),method='linear',fill_value=0.0)
        
         # RBF (radius basis function)
         # rbfi = interp.Rbf(X3, Z3, Y3, functionc='cubic', smooth=0)  # default smooth=0 for interpolation
@@ -238,8 +234,6 @@ class AccEnvCalc:
 
         fig = plt.figure(6)
         ax = fig.add_subplot(111, projection='3d')
-        ax.plot_surface(plotx3,ploty3,plotz3,cstride=1,rstride=1,cmap='viridis')
-        ax.scatter(X3,Y3,Z3)
         
         print("AccEnvCalc completed")
 
