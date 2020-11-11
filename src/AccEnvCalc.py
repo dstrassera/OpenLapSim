@@ -195,46 +195,6 @@ class AccEnvCalc:
         self.accEnvDict["GGVdec"] = GGVdec
         self.accEnvDict["GGVfull"] = GGVfull
         
-        xyz1 = GGVacc
-        X1= xyz1[:,0]
-        Y1= xyz1[:,1]
-        Z1= xyz1[:,2]
-        ploty1,plotz1, = np.meshgrid(np.linspace(np.min(Y1),np.max(Y1),30),\
-                                   np.linspace(np.min(Z1),np.max(Z1),30))
-        # Griddata
-        plotx1 = interp.griddata((Y1,Z1),X1,(ploty1,plotz1),method='linear',fill_value=0.0)
-        
-        xyz2 = GGVdec
-        X2= xyz2[:,0]
-        Y2= xyz2[:,1]
-        Z2= xyz2[:,2]
-        ploty2,plotz2, = np.meshgrid(np.linspace(np.min(Y2),np.max(Y2),30),\
-                                   np.linspace(np.min(Z2),np.max(Z2),30))
-        plotx2 = interp.griddata((Y2,Z2),X2,(ploty2,plotz2),method='linear', fill_value=0.0)
-       
-        xyz3= GGVfull
-        X3= xyz3[:,0]
-        Y3= xyz3[:,1]
-        Z3= xyz3[:,2]
-       
-        # RBF (radius basis function)
-        # rbfi = interp.Rbf(X3, Z3, Y3, functionc='cubic', smooth=0)  # default smooth=0 for interpolation
-        # ploty3 = rbfi(plotx3, plotz3)  # not really a function, but a callable class instance
-        
-        axcombine = interp.griddata((Y2,Z2),X2,(0.0,40),method='cubic')
-        print(axcombine)
-        
-        
-        fig = plt.figure(5)
-        ax = fig.add_subplot(111, projection='3d')
-        ax.plot_surface(plotx1,ploty1,plotz1,cstride=1,rstride=1,cmap='viridis')
-        ax.scatter(X1,Y1,Z1)
-        ax.plot_surface(plotx2,ploty2,plotz2,cstride=1,rstride=1,cmap='viridis')
-        ax.scatter(X2,Y2,Z2)
-
-        fig = plt.figure(6)
-        ax = fig.add_subplot(111, projection='3d')
-        
         print("AccEnvCalc completed")
 
 

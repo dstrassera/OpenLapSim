@@ -29,6 +29,8 @@ class LapTimeSimCalc:
                 "vxacc"      : None,
                 "vxdec"      : None,
                 "vxcor"      : None,
+                "GGVacc" :None,
+                "GGVdec" :None,
             }
 
         @staticmethod
@@ -43,7 +45,6 @@ class LapTimeSimCalc:
                 if GGVfull[i, 0] <= 0:
                     GGVdec = np.concatenate((GGVdec, GGVfull[i, :]))
                     k += 1
-            print("j: ", j, "k: ", k)
             ncol = np.size(GGVfull, axis=1)
             GGVacc = np.resize(GGVacc, (j, 3))
             #print(GGVacc)
@@ -54,32 +55,6 @@ class LapTimeSimCalc:
             # Split the full GGV in acc and dec
             self.GGVacc, self.GGVdec = LapTimeSimCalc.splitGGVfull(self.GGVfull)
            
-            # Plotting splitted GGV %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            xyz1 = self.GGVacc 
-            X1= xyz1[:,0]
-            Y1= xyz1[:,1]
-            Z1= xyz1[:,2]
-            ploty1,plotz1, = np.meshgrid(np.linspace(np.min(Y1),np.max(Y1),30),\
-                                       np.linspace(np.min(Z1),np.max(Z1),30))
-            # Griddata
-            plotx1 = interp.griddata((Y1,Z1),X1,(ploty1,plotz1),method='linear',fill_value=0.0)
-            
-            xyz2 = self.GGVdec 
-            X2= xyz2[:,0]
-            Y2= xyz2[:,1]
-            Z2= xyz2[:,2]
-            ploty2,plotz2, = np.meshgrid(np.linspace(np.min(Y2),np.max(Y2),30),\
-                                       np.linspace(np.min(Z2),np.max(Z2),30))
-            plotx2 = interp.griddata((Y2,Z2),X2,(ploty2,plotz2),method='linear', fill_value=0.0)
-       
-            fig = plt.figure(9)
-            ax = fig.add_subplot(111, projection='3d')
-            ax.plot_surface(plotx1,ploty1,plotz1,cstride=1,rstride=1,cmap='viridis')
-            ax.scatter(X1,Y1,Z1)
-            ax.plot_surface(plotx2,ploty2,plotz2,cstride=1,rstride=1,cmap='viridis')
-            ax.scatter(X2,Y2,Z2)
-            # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
             # Load TrackFile
             track = np.loadtxt(self.TrackFile)
             dist = track[:, 0]
@@ -97,8 +72,6 @@ class LapTimeSimCalc:
                     vxclipped = max(self.GGVacc[i, 2], small)  # to avoid div by zero
                     curvvect = np.append(curvvect, self.GGVacc[i, 1]/pow(vxclipped, 2))  # C=ay/v^2
                     vxvect = np.append(vxvect, vxclipped)
-                    print(i, " ", vxclipped, " ", self.GGVacc[i, 1])
-            print(curvvect)
             curvvect[0] = 0.5
             curvclipped = np.zeros(len(curv))
             for i in range(len(curv)):
@@ -168,6 +141,8 @@ class LapTimeSimCalc:
                 "vxacc"     : vxacc,
                 "vxdec"     : vxdec,
                 "vxcor"     : vxcor,
+                "GGVacc" : self.GGVacc,
+                "GGVdec" : self.GGVdec,
             }
             
             print("LapSimTimeCalc completed")

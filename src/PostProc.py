@@ -5,13 +5,19 @@ Post Processing - OLS
 """
 # Import packages
 import matplotlib.pyplot as plt
+from matplotlib.ticker import LinearLocator
 import numpy as np
+import scipy.interpolate as interp
 
 class PostProc:
     
     def __init__(self, accEnvDict, lapSimTimeDict):
         self.size   = 10
         # input
+        self.GGVfull = accEnvDict["GGVfull"]
+        self.GGVacc = lapSimTimeDict["GGVacc"]
+        self.GGVdec = lapSimTimeDict["GGVdec"]
+
         self.vxvect  = accEnvDict["vxvect"]
         self.ay      = accEnvDict["ay"]
         self.axacc   = accEnvDict["axacc"]
@@ -31,7 +37,7 @@ class PostProc:
         self.Fxaero   = accEnvDict["Fxaero"]
         self.Fxgrip   = accEnvDict["Fxgrip"]
         self.Fxdrive   = accEnvDict["Fxdrive"]
-        
+ 
         # output
         self.f1 = None
         self.f2 = None
@@ -50,7 +56,56 @@ class PostProc:
         plt.grid(b=True,which='major',linestyle=':')
         plt.ylim(0,self.vcarmax*1.2)
         self.f1 = f
+ 
+    def plotGGV(self): 
+        GGVacc = self.GGVacc
+        GGVdec = self.GGVdec
+        GGVfull = self.GGVfull
         
+        xyz1 = GGVacc
+        X1= xyz1[:,0]
+        Y1= xyz1[:,1]
+        Z1= xyz1[:,2]
+        # Griddata
+        ploty1,plotz1, = np.meshgrid(np.linspace(np.min(Y1),np.max(Y1),30),\
+                                   np.linspace(np.min(Z1),np.max(Z1),30))
+        plotx1 = interp.griddata((Y1,Z1),X1,(ploty1,plotz1),method='linear',fill_value=0.0)
+        
+        xyz2 = GGVdec
+        X2= xyz2[:,0]
+        Y2= xyz2[:,1]
+        Z2= xyz2[:,2]
+        # Griddata
+        ploty2,plotz2, = np.meshgrid(np.linspace(np.min(Y2),np.max(Y2),30),\
+                                   np.linspace(np.min(Z2),np.max(Z2),30))
+        plotx2 = interp.griddata((Y2,Z2),X2,(ploty2,plotz2),method='linear', fill_value=0.0)
+
+        xyz3 = GGVfull
+        X3= xyz3[:,0]
+        Y3= xyz3[:,1]
+        Z3= xyz3[:,2]
+        # ploty3,plotz3, = np.meshgrid(np.linspace(np.min(Y3),np.max(Y3),30),\
+        #                            np.linspace(np.min(Z3),np.max(Z3),30))
+        # plotx3 = interp.griddata((Y3,Z3),X3,(ploty3,plotz3),method='linear', fill_value=0.0)
+
+        fig = plt.figure(5)
+        ax = fig.add_subplot(111, projection='3d')
+        surf1 = ax.plot_surface(plotx1,ploty1,plotz1,cstride=1,rstride=1,cmap='coolwarm',edgecolor='black', linewidth=0.2, antialiased=True)
+        #ax.scatter(X1,Y1,Z1)
+        surf2 = ax.plot_surface(plotx2,ploty2,plotz2,cstride=1,rstride=1,cmap='coolwarm',edgecolor='black', linewidth=0.2, antialiased=True)
+        #ax.scatter(X2,Y2,Z2)
+        ax.scatter(X3,Y3,Z3)
+
+        # # Customize the z axis.
+        # ax.set_zlim(-1.01, 1.01)
+        # ax.zaxis.set_major_locator(LinearLocator(10))
+        # # A StrMethodFormatter is used automatically
+        # ax.zaxis.set_major_formatter('{x:.02f}')
+        
+        # Add a color bar which maps values to colors.
+        fig.colorbar(surf1, shrink=0.5, aspect=5)
+
+
     def plotAccEnvExtra(self):
         f, (ax1, ax2, ax3, ax4) = plt.subplots(1,4,figsize=(self.size*1.5,self.size/2))
         ax1.set_title("Forces[N] (vcar[m/s])")

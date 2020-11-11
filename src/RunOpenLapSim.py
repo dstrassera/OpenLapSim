@@ -35,7 +35,7 @@ bPlotExtra = 1
 
 # import packages generic
 import datetime
-
+import time
 # import packages (OLP)
 from AccEnvCalc import*
 from LapTimeSimCalc import*
@@ -73,6 +73,9 @@ class RunOpenLapSim:
             Run Simulation
             ---------------------------
             """
+            # Computation time start
+            tstart = time.time()
+            
             #SetupFile obj instantiation
             s = SetupFileLoader(self.setupFilesPath + self.setupFileName)
             s.loadJSON()
@@ -88,9 +91,15 @@ class RunOpenLapSim:
             l2 = LapTimeSimCalc(trackFile,aE.accEnvDict,l1.lapTimeSimDict["vxaccEnd"])
             l2.Run()
             
+            # Computation time end
+            tend = time.time()
+            tcomp = round(tend - tstart,1)
+            print("Computational time: ", tcomp)
+
             # Post Processing
             pP = PostProc(aE.accEnvDict, l2.lapTimeSimDict)
             pP.plotAccEnv()
+            pP.plotGGV()
             #pP.f1.show()
             pP.plotLapTimeSim()
             #pP.f2.show()
