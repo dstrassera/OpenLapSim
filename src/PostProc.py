@@ -6,6 +6,7 @@ Post Processing - OLS
 # Import packages
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.interpolate as interp
 
 
 class PostProc:
@@ -13,6 +14,10 @@ class PostProc:
     def __init__(self, accEnvDict, lapSimTimeDict):
         self.size = 10
         # inputs
+        self.GGVfull = accEnvDict["GGVfull"]
+        self.GGVacc = lapSimTimeDict["GGVacc"]
+        self.GGVdec = lapSimTimeDict["GGVdec"]
+
         self.vxvect = accEnvDict["vxvect"]
         self.ay = accEnvDict["ay"]
         self.axacc = accEnvDict["axacc"]
@@ -45,6 +50,58 @@ class PostProc:
         plt.grid(b=True, which='major', linestyle=':')
         plt.ylim(0, self.vcarmax*1.2)
 
+    def plotGGV(self, bPlotGGVfull=0):
+        GGVacc = self.GGVacc
+        GGVdec = self.GGVdec
+        GGVfull = self.GGVfull
+
+        xyz1 = GGVacc
+        X1 = xyz1[:, 0]
+        Y1 = xyz1[:, 1]
+        Z1 = xyz1[:, 2]
+        # Griddata
+        ploty1, plotz1, = np.meshgrid(np.linspace(np.min(Y1), np.max(Y1), 30),
+                                      np.linspace(np.min(Z1), np.max(Z1), 30))
+        plotx1 = interp.griddata((Y1, Z1), X1, (ploty1, plotz1),
+                                 method='linear', fill_value=0.0)
+
+        xyz2 = GGVdec
+        X2 = xyz2[:, 0]
+        Y2 = xyz2[:, 1]
+        Z2 = xyz2[:, 2]
+        # Griddata
+        ploty2, plotz2, = np.meshgrid(np.linspace(np.min(Y2), np.max(Y2), 30),
+                                      np.linspace(np.min(Z2), np.max(Z2), 30))
+        plotx2 = interp.griddata((Y2, Z2), X2, (ploty2, plotz2),
+                                 method='linear', fill_value=0.0)
+
+        xyz3 = GGVfull
+        X3 = xyz3[:, 0]
+        Y3 = xyz3[:, 1]
+        Z3 = xyz3[:, 2]
+
+        fig = plt.figure(5)
+        ax = fig.add_subplot(111, projection='3d')
+        surf1 = ax.plot_surface(plotx1, ploty1, plotz1,
+                                cstride=1, rstride=1, cmap='coolwarm',
+                                edgecolor='black', linewidth=0.2,
+                                antialiased=True)
+        surf2 = ax.plot_surface(plotx2, ploty2, plotz2,
+                                cstride=1, rstride=1, cmap='coolwarm',
+                                edgecolor='black', linewidth=0.2,
+                                antialiased=True)
+        if bPlotGGVfull == 1:
+            ax.scatter(X3, Y3, Z3, color="black", label="GGVfull sparse")
+            ax.legend()
+
+        # Add a color bar which maps values to colors.
+        fig.colorbar(surf1, shrink=0.5, aspect=5)
+
+        plt.title("OpenLapSim - Performance Envelope")
+        plt.xlabel('ax [m/s^2]')
+        plt.ylabel('ay [m/s^2]')
+        ax.set_zlabel('velocity [m/s]')
+
     def plotAccEnvExtra(self):
         f, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4,
                                                figsize=(self.size*1.5,
@@ -74,7 +131,7 @@ class PostProc:
 
     def plotLapTimeSim(self):
         plt.figure(2, figsize=(self.size, self.size/2))
-        plt.title("Lap Time Simulation")
+        plt.title("OpenLapSim - Lap Time Simulation")
         plt.plot(self.dist, self.vcar, 'b-', linewidth=2, label="vcar")
         plt.xlabel('distance [m]')
         plt.ylabel('velocity [m/s]')
@@ -96,7 +153,7 @@ class PostProc:
         plt.grid(b=True, which='major', linestyle=':')
         plt.ylim(0, self.vcarmax*1.2)
         plt.xlim(0, max(self.dist))
-        
+
     def printData(self):
         print("PostProc completed")
         print("---------------------------")

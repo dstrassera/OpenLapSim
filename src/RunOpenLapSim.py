@@ -17,11 +17,13 @@ by Python 3.7
 ---------------------------
 
 """
+
 # ----------------------------------------------------------------------------
 
 # import packages generic
 import datetime
 import matplotlib.pyplot as plt
+import time
 
 # import packages (OLP)
 from AccEnvCalc import AccEnvCalc
@@ -46,6 +48,7 @@ class RunOpenLapSim:
         # outputs
         self.laptime = None
         self.vcarmax = None
+        self.tcomp = None  # computational time
 
     @staticmethod
     def createExportSimFile(vcar, dist, exportFilesPath):
@@ -62,11 +65,13 @@ class RunOpenLapSim:
         return NewExportFileName
 
     def run(self):
-        """
-        ---------------------------
-        Run Simulation
-        ---------------------------
-        """
+        print("---------------------------")
+        print("OpenLapSim")
+        print("---------------------------")
+
+        # Computation time start
+        tstart = time.time()
+
         # SetupFile obj instantiation
         s = SetupFileLoader(self.setupFilesPath + self.setupFileName)
         s.loadJSON()
@@ -91,11 +96,17 @@ class RunOpenLapSim:
         if self.bExport == 1:
             RunOpenLapSim.createExportSimFile(vcar, dist, self.exportFilesPath)
 
+        # Computation time end
+        tend = time.time()
+        tcomp = round(tend - tstart, 1)
+        print("Computational time: ", tcomp)
+
         # Post Processing
         pP = PostProc(aE.accEnvDict, l2.lapTimeSimDict)
         pP.printData()
         if self.bPlot == 1:
-            pP.plotAccEnv()
+            # pP.plotAccEnv()
+            pP.plotGGV()
             pP.plotLapTimeSim()
         if self.bPlotExtra == 1:
             pP.plotLapTimeSimExtra()
@@ -105,6 +116,7 @@ class RunOpenLapSim:
         # output values
         self.laptime = l2.lapTimeSimDict["laptime"]
         self.vcarmax = l2.lapTimeSimDict["vcarmax"]
+        self.tcomp = tcomp
 
 # ----------------------------------------------------------------------------
 

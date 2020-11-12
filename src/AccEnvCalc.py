@@ -3,6 +3,7 @@
 Acceleration Envelope Calculator - OLS
 ---------------------------
 """
+
 # Import Packages
 import numpy as np
 import scipy.constants as sc
@@ -30,7 +31,8 @@ class AccEnvCalc:
         self.g = sc.g     # 9.80665
         self.pi = sc.pi    # 3.14159
         # parameters
-        self.nSteps = 21
+        self.nSteps = 10
+        self.nAx = 20
         self.LOAD_EFF_SCALE = 10000  # [N]
         # outputs
         self.accEnvDict = {
@@ -48,7 +50,11 @@ class AccEnvCalc:
             "gripy": None,
             "Fxgrip": None,
             "Fxdrive": None,
-        }
+            # GGV
+            "GGVacc": None,
+            "GGVdec": None,
+            "GGVfull": None,
+            }
 
     # VxMax Calculation (forces equilibrium)
     def Run(self):
@@ -99,10 +105,10 @@ class AccEnvCalc:
             vxmax += 0.1
 
         # Ax & Ay Calculation
+        vxmax = np.round(vxmax, 1)
         nSteps = self.nSteps
-        vxstep = vxmax/(nSteps-1)
         small = 0.00000001  # to avoid division by zero
-        vxvect = np.arange(small, np.ceil(vxmax), vxstep)
+        vxvect = np.linspace(small, vxmax, nSteps)
 
         ay = [0]*len(vxvect)
         for i in range(len(vxvect)):
@@ -149,5 +155,55 @@ class AccEnvCalc:
             "Fxgrip": Fxgrip,
             "Fxdrive": Fxdrive,
         }
+
+        def generateGGV(axacc, axdec, ay, vxvect):
+            """ This method generates a GGVacc and GGVdec surface using ellispe
+            equation for combine, given the vectors (axacc,axdec,ay,vxvect)."""
+            nAx = self.nAx
+            nVx = len(vxvect)
+            size = nVx*nAx
+            # GGV ACCELERATION
+            GGVacc = np.zeros((size, 3))  # ay,ax,vx
+            for i in range(nVx):
+                ayStep = np.absolute(ay[i])/(nAx)
+                for j in range(nAx):
+                    ayreal = ay[i] - ayStep*j
+                    axcombine = np.sqrt(np.absolute(np.power(axacc[i], 2) *
+                                (1-(np.power(ayreal, 2)/np.power(ay[i], 2)))))
+                    index = (i*nAx)+j
+                    GGVacc[index, 0] = np.round(axcombine, 2)
+                    GGVacc[index, 1] = np.round(ayreal, 2)
+                    GGVacc[index, 2] = np.round(vxvect[i], 2)
+            # GGV DECELERATION
+            GGVdec = np.zeros((size, 3))  # ax,ay,vx
+            for i in range(nVx):
+                ayStep = np.absolute(ay[i])/(nAx)
+                for j in range(nAx):
+                    ayreal = ay[i] - ayStep*j
+                    axcombine = - np.sqrt(np.absolute(np.power(axdec[i], 2) *
+                                  (1-(np.power(ayreal, 2)/np.power(ay[i], 2)))))
+                    index = ((i*nAx)+j)
+                    GGVdec[index, 0] = np.round(axcombine, 2)
+                    GGVdec[index, 1] = np.round(ayreal, 2)
+                    GGVdec[index, 2] = np.round(vxvect[i], 2)
+            return GGVacc, GGVdec
+
+        ay = self.accEnvDict["ay"]
+        axdec = self.accEnvDict["axdec"]
+        axacc = self.accEnvDict["axacc"]
+        vxvect = self.accEnvDict["vxvect"]
+
+        GGVacc, GGVdec = generateGGV(axacc, axdec, ay, vxvect)
+
+        # Mirror the GGV to left and concat GGVacc and GGVdec
+        GGVaccLeft = GGVacc*[1, -1, 1]
+        GGVacc = np.concatenate((GGVacc, GGVaccLeft))
+        GGVdecLeft = GGVdec*[1, -1, 1]
+        GGVdec = np.concatenate((GGVdec, GGVdecLeft))
+        GGVfull = np.concatenate((GGVacc, GGVdec))
+
+        self.accEnvDict["GGVacc"] = GGVacc
+        self.accEnvDict["GGVdec"] = GGVdec
+        self.accEnvDict["GGVfull"] = GGVfull
 
         print("AccEnvCalc completed")
