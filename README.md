@@ -7,10 +7,12 @@ The Open Source Lap Time Simulation Software
 
 ---
 
+![alt text](OLS_PerfEnvSmall.png)
+
 ### QUICK START
 
 ### Intro
-The OpenLapSim is an **open source quasi-static Lap Time Simulation Software** written in Python.
+The OpenLapSim is an **open source steady state Lap Time Simulation Software** written in Python.
 
 ### Run a Sim
 To run a simulation and see the results just run the file "RunOpenLapSim.py" in the /src repository.
