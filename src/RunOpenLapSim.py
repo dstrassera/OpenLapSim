@@ -2,7 +2,8 @@
 ---------------------------
 OpenLapSim - OLS
 ---------------------------
-This is a quasi-static Lap Time Simulator for a simple point mass vehicle
+
+This is a steady state Lap Time Simulator for a simple point mass vehicle
 with aero forces, constant tyre grip(x and y), engine torque map and gears.
 
 Steps:
@@ -10,6 +11,7 @@ Steps:
     2 - Calculate the Acceleration Envelope
     3 - Calculate the Lap Time Simulation (vcar)
     4 - Plot Results
+
 ---------------------------
 @autor: Davide Strassera
 @first release: 2019-12-21

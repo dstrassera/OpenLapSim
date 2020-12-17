@@ -2,6 +2,15 @@
 ---------------------------
 Post Processing - OLS
 ---------------------------
+
+This class computes the post processing of the simulation.
+
+---------------------------
+@autor: Davide Strassera
+@first release: 2019-12-21
+by Python 3.7
+---------------------------
+
 """
 # Import packages
 import matplotlib.pyplot as plt

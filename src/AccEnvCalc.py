@@ -2,6 +2,15 @@
 ---------------------------
 Acceleration Envelope Calculator - OLS
 ---------------------------
+
+This  class computes the Performance Envelope (Ax, Ay, vcar).
+
+---------------------------
+@autor: Davide Strassera
+@first release: 2019-12-21
+by Python 3.7
+---------------------------
+
 """
 
 # Import Packages
@@ -56,7 +65,6 @@ class AccEnvCalc:
             "GGVfull": None,
             }
 
-    # VxMax Calculation (forces equilibrium)
     def Run(self):
 
         # Functions Definitions
@@ -97,6 +105,7 @@ class AccEnvCalc:
             newGrip = grip - deltaGripLoadEff
             return newGrip
 
+        # VxMax Calculation (forces equilibrium)
         vxmax = 1
         e = 0.1
         while e > 0.05:

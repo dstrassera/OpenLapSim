@@ -2,6 +2,16 @@
 ---------------------------
 Lap Time Simulation Calculator - OLS
 ---------------------------
+
+This class computes the speed trace given the Performance Envelope and
+the track file (track curvature).
+
+---------------------------
+@autor: Davide Strassera
+@first release: 2019-12-21
+by Python 3.7
+---------------------------
+
 """
 # Import Packages
 import numpy as np
