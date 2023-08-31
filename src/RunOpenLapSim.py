@@ -26,6 +26,8 @@ by Python 3.7
 import datetime
 import matplotlib.pyplot as plt
 import time
+import argparse
+
 
 # import packages (OLP)
 from AccEnvCalc import AccEnvCalc
@@ -83,7 +85,7 @@ class RunOpenLapSim:
         aE.Run()
 
         # Run Lap time Simulation
-        trackFile = (self.trackFilesPath+self.trackFileName)
+        trackFile = (self.trackFilesPath + self.trackFileName)
         l1 = LapTimeSimCalc(trackFile, aE.accEnvDict, 10)
         l1.Run()
         l2 = LapTimeSimCalc(trackFile, aE.accEnvDict,
@@ -95,7 +97,7 @@ class RunOpenLapSim:
         dist = l2.lapTimeSimDict["dist"]  # circuit dist [m]
 
         # export
-        if self.bExport == 1:
+        if self.bExport:
             RunOpenLapSim.createExportSimFile(vcar, dist, self.exportFilesPath)
 
         # Computation time end
@@ -106,11 +108,11 @@ class RunOpenLapSim:
         # Post Processing
         pP = PostProc(aE.accEnvDict, l2.lapTimeSimDict)
         pP.printData()
-        if self.bPlot == 1:
+        if self.bPlot:
             # pP.plotAccEnv()
             pP.plotGGV()
             pP.plotLapTimeSim()
-        if self.bPlotExtra == 1:
+        if self.bPlotExtra:
             pP.plotLapTimeSimExtra()
             pP.plotAccEnvExtra()
         plt.show()  # plot all figure once at the end
@@ -120,21 +122,33 @@ class RunOpenLapSim:
         self.vcarmax = l2.lapTimeSimDict["vcarmax"]
         self.tcomp = tcomp
 
+
 # ----------------------------------------------------------------------------
 
 
-if __name__ == '__main__':
 
-    # SetupFile.json
-    setupFileName = "SetupFile.json"
-    # TrackFile.txt
-    trackFileName = "TrackFile.txt"
-    # Additional Options
-    bExport = 1
-    bPlot = 1
-    bPlotExtra = 0
+def main():
+    parser = argparse.ArgumentParser(description="OpenLapSim")
+
+    parser.add_argument("--setup", type=str, default="SetupFile.json", help="Name of the setup file.")
+    parser.add_argument("--track", type=str, default="TrackFile.txt", help="Name of the track file.")
+    parser.add_argument("--export", action="store_true", help="Export results.")
+    parser.add_argument("--plot", action="store_true", help="Plot basic results.")
+    parser.add_argument("--plot-extra", action="store_true", help="Enable extra plots.")
+
+    args = parser.parse_args()
+
+    setupFileName = args.setup
+    trackFileName = args.track
+    bExport = args.export
+    bPlot = args.plot
+    bPlotExtra = args.plot_extra
 
     # object instantiation
     runOpenLapSim = RunOpenLapSim(setupFileName, trackFileName,
                                   bExport, bPlot, bPlotExtra)
     runOpenLapSim.run()
+
+
+if __name__ == '__main__':
+    main()

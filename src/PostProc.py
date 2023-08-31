@@ -121,22 +121,22 @@ class PostProc:
         ax1.plot(self.Fxgrip, self.vxvect, 'r-', label="FxGrip")
         ax1.plot(self.Fxdrive, self.vxvect, 'g-', label="FxDrive")
         ax1.legend()
-        ax1.grid(b=True, which='major', linestyle=':')
+        ax1.grid(visible=True, which='major', linestyle=':')
 
         ax2.set_title("Gear (vcar[m/s])")
         ax2.plot(self.nGear, self.vxvect, 'c-', label="nGear")
         ax2.legend()
-        ax2.grid(b=True, which='major', linestyle=':')
+        ax2.grid(visible=True, which='major', linestyle=':')
 
         ax3.set_title("EngNm (vcar[m/s])")
         ax3.plot(self.EngNm, self.vxvect, 'c-', label="EngNm")
         ax3.legend()
-        ax3.grid(b=True, which='major', linestyle=':')
+        ax3.grid(visible=True, which='major', linestyle=':')
 
         ax4.set_title("EngRpm (vcar[m/s])")
         ax4.plot(self.EngRpm, self.vxvect, 'c-', label="EngRpm")
         ax4.legend()
-        ax4.grid(b=True, which='major', linestyle=':')
+        ax4.grid(visible=True, which='major', linestyle=':')
 
     def plotLapTimeSim(self):
         plt.figure(2, figsize=(self.size, self.size/2))
@@ -145,7 +145,7 @@ class PostProc:
         plt.xlabel('distance [m]')
         plt.ylabel('velocity [m/s]')
         plt.legend()
-        plt.grid(b=True, which='major', linestyle=':')
+        plt.grid(visible=True, which='major', linestyle=':')
         plt.ylim(0, self.vcarmax*1.2)
         plt.xlim(0, max(self.dist))
 
@@ -159,7 +159,7 @@ class PostProc:
         plt.xlabel('distance [m]')
         plt.ylabel('velocity [m/s]')
         plt.legend()
-        plt.grid(b=True, which='major', linestyle=':')
+        plt.grid(visible=True, which='major', linestyle=':')
         plt.ylim(0, self.vcarmax*1.2)
         plt.xlim(0, max(self.dist))
 
