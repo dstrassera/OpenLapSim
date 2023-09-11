@@ -102,15 +102,17 @@ class RunOpenLapSim:
         dist = l2.lapTimeSimDict["dist"]  # circuit dist [m]
         lap_time = l2.lapTimeSimDict["time"]
         acc = np.gradient(vcar, lap_time)
-        force = s.setupDict["mcar"] * acc
-        positive_force = np.maximum(force, np.zeros(force.shape))
-        power = positive_force * vcar
+        force = s.setupDict["mcar"] * acc + (0.5 * s.setupDict["rho"] * np.square(vcar) * s.setupDict["cx"] * s.setupDict["afrcar"])
+        power = force * vcar
+        # No regen braking :(
+        positive_power = np.maximum(power, np.zeros(power.shape))
+        rms_power = np.sqrt(np.average(np.square(positive_power)))
+        print(f"RMS Power: {rms_power / 1000} kW")
 
-        plt.plot(lap_time, acc)
-        plt.plot(lap_time, positive_force)
-        plt.plot(lap_time, power)
+        if self.bPlotExtra:
+            plt.plot(lap_time, power)
 
-        plt.show()
+        # plt.show()
 
 
         # export
