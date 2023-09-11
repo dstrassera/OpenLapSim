@@ -28,6 +28,7 @@ import matplotlib.pyplot as plt
 import time
 import argparse
 
+import numpy as np
 
 # import packages (OLP)
 from AccEnvCalc import AccEnvCalc
@@ -88,13 +89,29 @@ class RunOpenLapSim:
         trackFile = (self.trackFilesPath + self.trackFileName)
         l1 = LapTimeSimCalc(trackFile, aE.accEnvDict, 10)
         l1.Run()
+
+        # Run second simulation using starting speed from first lap
         l2 = LapTimeSimCalc(trackFile, aE.accEnvDict,
                             l1.lapTimeSimDict["vxaccEnd"])
         l2.Run()
 
+
+
         # set output channels from simulation for Export
         vcar = l2.lapTimeSimDict["vcar"]  # car speed [m/s]
         dist = l2.lapTimeSimDict["dist"]  # circuit dist [m]
+        lap_time = l2.lapTimeSimDict["time"]
+        acc = np.gradient(vcar, lap_time)
+        force = s.setupDict["mcar"] * acc
+        positive_force = np.maximum(force, np.zeros(force.shape))
+        power = positive_force * vcar
+
+        plt.plot(lap_time, acc)
+        plt.plot(lap_time, positive_force)
+        plt.plot(lap_time, power)
+
+        plt.show()
+
 
         # export
         if self.bExport:
