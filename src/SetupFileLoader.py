@@ -33,11 +33,14 @@ by Python 3.7
 """
 # Import Packages
 import json
+import math
 
 
+# TODO this doesn't need to be a class...
 class SetupFileLoader:
 
-    def __init__(self, setupFileName):
+    def __init__(self, setupFileName, power_limit_kw = None):
+        self.power_limit_w = power_limit_kw
         self.setupFileName = setupFileName
         self.setupDict = {}
 
@@ -45,5 +48,19 @@ class SetupFileLoader:
         # load json
         with open(self.setupFileName) as f:
             data = json.load(f)
+
+        if self.power_limit_w is not None:
+            EngNm = data["EngNm"]
+            EngRpm = data["EngRpm"]
+            new_nm = []
+            for nm, rpm in zip(EngNm, EngRpm):
+                if rpm != 0:
+                    max_nm = self.power_limit_w / (rpm / 60 * 2 * math.pi)
+                    new_nm.append(min(nm, max_nm))
+                else:
+                    new_nm.append(nm)
+
+            data["EngNm"] = new_nm
+
         # set setupDict
         self.setupDict = data
