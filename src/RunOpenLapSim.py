@@ -55,6 +55,8 @@ class LapSimOutput:
 
     tcomp: float  # Computation time in seconds
 
+    post_proc: PostProc  # post-processing thingy
+
 
 def createExportSimFile(sim_output: LapSimOutput, exportFilesPath):
     time = datetime.datetime.now()
@@ -132,6 +134,9 @@ def run(setupFilePath, trackFilePath, powerLimit, print_progress=False):
     positive_power = np.maximum(power, np.zeros(power.shape))
     rms_power = np.sqrt(np.average(np.square(positive_power)))
 
+
+    pP = PostProc(aE.accEnvDict, l2.lapTimeSimDict)
+
     # Computation time end
     tend = time.time()
     tcomp = round(tend - tstart, 1)
@@ -144,7 +149,7 @@ def run(setupFilePath, trackFilePath, powerLimit, print_progress=False):
     tcomp = tcomp
 
     return LapSimOutput(vcarmax=vcarmax, laptime=laptime, tcomp=tcomp, rms_power=rms_power, trans_vcar=vcar,
-                        trans_dist=dist, trans_power=positive_power, trans_time=lap_time)
+                        trans_dist=dist, trans_power=positive_power, trans_time=lap_time, post_proc=pP)
 
 
 # ----------------------------------------------------------------------------
@@ -179,25 +184,23 @@ def main():
     print(f"Lap time: {results.laptime} seconds")
     print(f"Max speed: {results.vcarmax} m/s")
 
-    if bPlotExtra:
-        plt.plot(results.trans_time, results.trans_power)
+    # Power over time plot
+    # if bPlotExtra:
+    #     plt.plot(results.trans_time, results.trans_power)
 
     # export
     if bExport:
         createExportSimFile(sim_output=results, exportFilesPath=EXPORT_FILE_PATH)
 
-    # TODO Refactor to make this work with new setup
-    # Post Processing
-    # pP = PostProc(aE.accEnvDict, l2.lapTimeSimDict)
-    # pP.printData()
-    # if bPlot:
-    #     # pP.plotAccEnv()
-    #     pP.plotGGV()
-    #     pP.plotLapTimeSim()
-    # if bPlotExtra:
-    #     pP.plotLapTimeSimExtra()
-    #     pP.plotAccEnvExtra()
-    # plt.show()  # plot all figure once at the end
+    # Post Processing data
+    if bPlot:
+        # pP.plotAccEnv()
+        results.post_proc.plotGGV()
+        results.post_proc.plotLapTimeSim()
+    if bPlotExtra:
+        results.post_proc.plotLapTimeSimExtra()
+        results.post_proc.plotAccEnvExtra()
+    plt.show()  # plot all figure once at the end
 
 
 if __name__ == '__main__':

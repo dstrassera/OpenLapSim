@@ -162,10 +162,3 @@ class PostProc:
         plt.grid(visible=True, which='major', linestyle=':')
         plt.ylim(0, self.vcarmax*1.2)
         plt.xlim(0, max(self.dist))
-
-    def printData(self):
-        print("PostProc completed")
-        print("---------------------------")
-        print("LapTime: ", self.laptime, "[s]")
-        print("TopSpeed: ", np.round(self.vcarmax*3.6, 1), "[Km/h]")
-        print("---------------------------")
