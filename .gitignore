@@ -1,10 +1,5 @@
 src/__pycache__/
 
-src/trackFiles/*
-!src/trackFiles/TrackFile.txt
-
-src/setupFiles/*
-!src/setupFiles/SetupFile.json
 
 src/exportFiles/
 
