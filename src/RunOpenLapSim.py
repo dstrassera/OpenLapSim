@@ -30,6 +30,7 @@ import matplotlib.pyplot as plt
 import time
 import argparse
 
+import numpy
 import numpy as np
 
 # import packages (OLP)
@@ -47,6 +48,7 @@ class LapSimOutput:
     vcarmax: float  # Maximum car velocity in m/s
 
     rms_power: float  # RMS Power drawn from battery (watts)
+    total_energy: float # Total energy consumed (joules)
 
     trans_vcar: np.ndarray  # Velocity samples over time
     trans_dist: np.ndarray  # Distance samples over time
@@ -56,6 +58,7 @@ class LapSimOutput:
     tcomp: float  # Computation time in seconds
 
     post_proc: PostProc  # post-processing thingy
+
 
 
 def createExportSimFile(sim_output: LapSimOutput, exportFilesPath):
@@ -70,8 +73,8 @@ def createExportSimFile(sim_output: LapSimOutput, exportFilesPath):
 
     for i in range(len(sim_output.trans_dist)):
         datums = [sim_output.trans_time[i], sim_output.trans_vcar[i], sim_output.trans_dist[i], sim_output.trans_power[i]]
-        lineToWrite = '\t'.join([str(d) for d in datums]) + '\n'
-        newFile.write(lineToWrite)
+        line_to_write = '\t'.join([str(d) for d in datums]) + '\n'
+        newFile.write(line_to_write)
     newFile.close()
     return NewExportFileName
 
@@ -122,6 +125,7 @@ def run(setupFilePath, trackFilePath, powerLimit, print_progress=False):
     vcar = l2.lapTimeSimDict["vcar"]  # car speed [m/s]
     dist = l2.lapTimeSimDict["dist"]  # circuit dist [m]
     lap_time = l2.lapTimeSimDict["time"]
+    lap_time[-1] = l2.lapTimeSimDict["laptime"]
     acc = np.gradient(vcar, lap_time)
     # Calculate force (accounting for acceleration and air resistance)
     force = s.setupDict["mcar"] * acc + (0.5 * s.setupDict["rho"] * np.square(vcar) * s.setupDict["cx"] * s.setupDict["afrcar"])
@@ -133,6 +137,8 @@ def run(setupFilePath, trackFilePath, powerLimit, print_progress=False):
     # No regen braking :(
     positive_power = np.maximum(power, np.zeros(power.shape))
     rms_power = np.sqrt(np.average(np.square(positive_power)))
+
+    total_energy = numpy.trapz(positive_power, x=lap_time)
 
 
     pP = PostProc(aE.accEnvDict, l2.lapTimeSimDict)
@@ -149,7 +155,7 @@ def run(setupFilePath, trackFilePath, powerLimit, print_progress=False):
     tcomp = tcomp
 
     return LapSimOutput(vcarmax=vcarmax, laptime=laptime, tcomp=tcomp, rms_power=rms_power, trans_vcar=vcar,
-                        trans_dist=dist, trans_power=positive_power, trans_time=lap_time, post_proc=pP)
+                        trans_dist=dist, trans_power=positive_power, trans_time=lap_time, post_proc=pP, total_energy=total_energy)
 
 
 # ----------------------------------------------------------------------------
@@ -162,6 +168,7 @@ def main():
     parser.add_argument("--setup", type=str, default="SetupFile.json", help="Name of the setup file.")
     parser.add_argument("--track", type=str, default="TrackFile.txt", help="Name of the track file.")
     parser.add_argument("--power-limit", type=float, help="Vehicle motor power limit.")
+    parser.add_argument("--n-laps", type=int, default=1, help="Total number of laps.")
     parser.add_argument("--export", action="store_true", help="Export results.")
     parser.add_argument("--plot", action="store_true", help="Plot basic results.")
     parser.add_argument("--plot-extra", action="store_true", help="Enable extra plots.")
@@ -174,15 +181,26 @@ def main():
     bExport = args.export
     bPlot = args.plot
     bPlotExtra = args.plot_extra
+    n_laps = args.n_laps
 
     # object instantiation
     results = run(setupFileName, trackFileName, powerLimit, print_progress=True)
     print("------------------")
     print("    RESULTS")
     print("------------------")
-    print(f"RMS Power: {results.rms_power / 1000} kW")
+    print("--Single lap--")
     print(f"Lap time: {results.laptime} seconds")
     print(f"Max speed: {results.vcarmax} m/s")
+    print(f"Energy used: {round(results.total_energy / 1000, 2)} kJ ({round(results.total_energy * 2.778e-4, 2)} Wh)")
+    if n_laps > 1:
+        print(f"--Overall ({n_laps} laps)--")
+        total_time = results.laptime * n_laps
+        print(f"Total time: {int(total_time // 60)}:{round(total_time % 60, 2)}")
+        total_energy = results.total_energy * n_laps
+        print(f"Total energy used: {round(total_energy / 1000, 2)} kJ ({round(total_energy * 2.778e-4, 2)} Wh)")
+
+    print(f"RMS Power: {round(results.rms_power / 1000, 2)} kW")
+
 
     # Power over time plot
     # if bPlotExtra:
