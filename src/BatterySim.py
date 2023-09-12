@@ -97,7 +97,7 @@ def plot_results(results, times):
 
     # Create subplots
     fig, axs = plt.subplots(2, 1, figsize=(10, 8))
-    fig.suptitle('Battery Simulation Data Over Time')
+    fig.suptitle('Transient Thermal Simulation Results')
 
     ax1 = axs[1]
     # Plot Voltage, Rint, and Current on separate y-axes
@@ -143,8 +143,8 @@ def plot_results(results, times):
     axs2.tick_params(axis='y', labelcolor='tab:red')
 
     lines, labels = ax0.get_legend_handles_labels()
-    lines2, labels2 = ax2.get_legend_handles_labels()
-    ax0.legend(lines + lines2, labels + labels2 , loc='upper left')
+    lines2, labels2 = axs2.get_legend_handles_labels()
+    ax0.legend(lines + lines2, labels + labels2, loc='upper left')
 
     # Adjust layout
     plt.tight_layout()
@@ -186,7 +186,7 @@ def main():
     lap_energy = np.trapz(sim_data.power, x=sim_data.time)
     lap_time = sim_data.time[-1]
 
-    bm = BatteryModel(10, 1, series_cells=84)
+    bm = BatteryModel(23, 1, series_cells=84)
 
     results = []
     result_times = []
@@ -213,24 +213,34 @@ def main():
     # print(f"Lap energy: {lap_energy}\n Energy from one lap: {sim_lap()}")
 
     #
+    print("--------------")
+    print(" Starting sim")
+    print("--------------")
     results.append(bm.update(0, 1))
     result_times.append(0)
 
     if break_after is not None:
+        print(f"Simulating {break_after} laps...")
         for lap in range(break_after):
-            print(f"Lap {lap}")
             sim_lap(results, result_times, bm)
-        print(f"{break_time} second break")
+
+        print(f"Simulating {break_time} second break")
         for _t in range(math.ceil(break_time / timestep)):
             results.append(bm.update(0, timestep))
             result_times.append(result_times[-1] + timestep)
+
+        print(f"Simulating {num_laps - break_after} laps...")
         for lap in range(break_after, num_laps):
-            print(f"Lap {lap}")
             sim_lap(results, result_times, bm)
     else:
+        print(f"Simulating {num_laps} laps...")
         for lap in range(num_laps):
             sim_lap(results, result_times, bm)
 
+    print("--------------")
+    print("Simulation complete")
+    print(f"Ending SOC: {round(bm.soc * 100, 1)}%")
+    print(f"Ending anode temp: {round(bm.t_anode, 1)}°C")
     plot_results(results, result_times)
 
 
